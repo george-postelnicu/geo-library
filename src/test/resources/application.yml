@@ -1,0 +1,25 @@
+  # database
+  datasource:
+    url: 'jdbc:h2:mem:testdb;MODE=MYSQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE;'
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+  h2:
+    console.enabled: true
+  # JPA
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      javax:
+        persistence:
+          schema-generation:
+            scripts:
+              action: create
+              create-target: target/generated-hibernate/hibernate-scripts.sql
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: UTC

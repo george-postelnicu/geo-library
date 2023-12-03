@@ -1,0 +1,4 @@
+create database library; -- Creates the new database
+create user 'spring'@'%' identified by 'ThePassword'; -- Creates the user
+grant all on library.* to 'spring'@'%'; -- Gives all privileges to the new user on the newly created database
+drop database library; -- Deletes the newly created database

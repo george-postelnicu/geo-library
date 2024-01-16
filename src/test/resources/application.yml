@@ -1,3 +1,4 @@
+spring:
   # database
   datasource:
     url: 'jdbc:h2:mem:testdb;MODE=MYSQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE;'
@@ -8,18 +9,19 @@
     console.enabled: true
   # JPA
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+#    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: validate
     show-sql: true
     properties:
-      javax:
+      jakarta:
         persistence:
           schema-generation:
             scripts:
               action: create
               create-target: target/generated-hibernate/hibernate-scripts.sql
       hibernate:
-        format_sql: true
+#        format_sql: true
         jdbc:
           time_zone: UTC
+    open-in-view: false

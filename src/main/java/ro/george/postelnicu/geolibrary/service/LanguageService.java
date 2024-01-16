@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ro.george.postelnicu.geolibrary.dto.language.LanguageDto;
 import ro.george.postelnicu.geolibrary.dto.language.LanguagesDto;
 import ro.george.postelnicu.geolibrary.exception.EntityAlreadyExistException;
+import ro.george.postelnicu.geolibrary.exception.EntityAlreadyLinkedException;
 import ro.george.postelnicu.geolibrary.exception.EntityNotFoundException;
 import ro.george.postelnicu.geolibrary.mapper.LibraryMapper;
 import ro.george.postelnicu.geolibrary.model.Language;
@@ -19,7 +20,8 @@ import java.util.stream.Collectors;
 
 import static org.springframework.transaction.annotation.Propagation.REQUIRED;
 import static ro.george.postelnicu.geolibrary.model.EntityName.LANGUAGE;
-import static ro.george.postelnicu.geolibrary.util.StringUtil.*;
+import static ro.george.postelnicu.geolibrary.util.StringUtil.splitCapitalizeAndJoin;
+import static ro.george.postelnicu.geolibrary.util.StringUtil.splitCapitalizeAndJoins;
 
 @Service
 public class LanguageService {
@@ -62,8 +64,14 @@ public class LanguageService {
 
     @Transactional
     public Language createIfNotExisting(LanguageDto languageDto) {
-        return repository.findByNameIgnoreCase(languageDto.getName())
-                .orElse(create(languageDto));
+        List<Language> languages = repository.findByNameIgnoreCase(languageDto.getName())
+                .stream()
+                .toList();
+        if (languages.isEmpty()) {
+            return create(languageDto);
+        } else {
+            return languages.get(0);
+        }
     }
 
     @Transactional(readOnly = true, propagation = REQUIRED)
@@ -77,7 +85,7 @@ public class LanguageService {
         Language language = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(LANGUAGE, id));
 
-        if (repository.existsByNameIgnoreCase(languageDto.getName())) {
+        if (repository.existsByNameIgnoreCaseAndIdIsNot(languageDto.getName(), id)) {
             throw new EntityAlreadyExistException(LANGUAGE, splitCapitalizeAndJoin(languageDto.getName()));
         }
 
@@ -88,11 +96,13 @@ public class LanguageService {
 
     @Transactional
     public void delete(Long id) {
+//        Language [3502][English]
+//        repository.findAll().forEach(language -> System.out.printf("Language [%s][%s]%n", language.getId(),language.getName()));
         Language language = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(LANGUAGE, id));
 
         if (relationRepository.existsByLanguageId(id)) {
-            throw new EntityAlreadyExistException(LANGUAGE, language.getName());
+            throw new EntityAlreadyLinkedException(LANGUAGE, language.getName());
         }
 
         repository.delete(language);

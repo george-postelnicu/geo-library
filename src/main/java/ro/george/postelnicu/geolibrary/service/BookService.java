@@ -8,6 +8,7 @@ import ro.george.postelnicu.geolibrary.dto.author.AuthorDto;
 import ro.george.postelnicu.geolibrary.dto.keyword.KeywordDto;
 import ro.george.postelnicu.geolibrary.dto.language.LanguageDto;
 import ro.george.postelnicu.geolibrary.exception.EntityAlreadyExistException;
+import ro.george.postelnicu.geolibrary.exception.EntityValidationException;
 import ro.george.postelnicu.geolibrary.mapper.LibraryMapper;
 import ro.george.postelnicu.geolibrary.model.Book;
 import ro.george.postelnicu.geolibrary.repository.BookRepository;
@@ -21,19 +22,12 @@ import static ro.george.postelnicu.geolibrary.model.EntityName.BOOK;
 public class BookService {
     private final BookRepository repository;
     private final IsbnService isbnService;
-    private final AuthorService authorService;
-    private final KeywordService keywordService;
-    private final LanguageService languageService;
 
     @Autowired
     public BookService(BookRepository repository,
-                       IsbnService isbnService, AuthorService authorService,
-                       KeywordService keywordService, LanguageService languageService) {
+                       IsbnService isbnService) {
         this.repository = repository;
         this.isbnService = isbnService;
-        this.authorService = authorService;
-        this.keywordService = keywordService;
-        this.languageService = languageService;
     }
 
     @Transactional(propagation = REQUIRED)
@@ -58,7 +52,7 @@ public class BookService {
         }
         authors.stream()
                 .map(AuthorDto::new)
-                .map(authorService::createIfNotExisting)
+                .map(LibraryMapper.INSTANCE::toAuthor)
                 .forEach(book::addAuthor);
     }
 
@@ -68,7 +62,7 @@ public class BookService {
         }
         keywords.stream()
                 .map(KeywordDto::new)
-                .map(keywordService::createIfNotExisting)
+                .map(LibraryMapper.INSTANCE::toKeyword)
                 .forEach(book::addKeyword);
     }
 
@@ -78,13 +72,13 @@ public class BookService {
         }
         languages.stream()
                 .map(LanguageDto::new)
-                .map(languageService::createIfNotExisting)
+                .map(LibraryMapper.INSTANCE::toLanguage)
                 .forEach(book::addLanguage);
     }
 
     private void validateName(String name, String fullTitle) {
-        if (fullTitle != null && !fullTitle.contains(name)) {
-            throw new EntityAlreadyExistException(BOOK, Set.of(name, fullTitle));
+        if (fullTitle != null && !fullTitle.toLowerCase().contains(name.toLowerCase())) {
+            throw new EntityValidationException(BOOK, "Name is not included in full title!");
         }
     }
 

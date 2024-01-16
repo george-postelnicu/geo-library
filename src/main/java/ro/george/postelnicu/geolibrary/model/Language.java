@@ -56,8 +56,8 @@ public class Language {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Language author = (Language) o;
-        return Objects.equals(name, author.name);
+        Language language = (Language) o;
+        return Objects.equals(name, language.name);
     }
 
     @Override

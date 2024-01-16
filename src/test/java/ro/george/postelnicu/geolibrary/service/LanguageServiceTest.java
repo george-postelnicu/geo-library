@@ -1,13 +1,17 @@
 package ro.george.postelnicu.geolibrary.service;
 
+import org.hibernate.Hibernate;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
+import ro.george.postelnicu.geolibrary.dto.BookDto;
 import ro.george.postelnicu.geolibrary.dto.language.LanguageDto;
 import ro.george.postelnicu.geolibrary.dto.language.LanguagesDto;
 import ro.george.postelnicu.geolibrary.exception.EntityAlreadyExistException;
+import ro.george.postelnicu.geolibrary.exception.EntityAlreadyLinkedException;
 import ro.george.postelnicu.geolibrary.exception.EntityNotFoundException;
+import ro.george.postelnicu.geolibrary.model.Book;
 import ro.george.postelnicu.geolibrary.model.Language;
 
 import java.util.Comparator;
@@ -16,6 +20,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static ro.george.postelnicu.geolibrary.exception.EntityAlreadyExistException.ENTITY_ALREADY_HAS_A;
+import static ro.george.postelnicu.geolibrary.exception.EntityAlreadyLinkedException.ENTITY_ALREADY_HAS_A_LINK;
 import static ro.george.postelnicu.geolibrary.exception.EntityNotFoundException.CANNOT_FIND_ENTITY_ID;
 import static ro.george.postelnicu.geolibrary.model.EntityName.LANGUAGE;
 
@@ -29,10 +34,12 @@ class LanguageServiceTest {
     public static final String FRENCH = "French";
     public static final long ID_NOT_FOUND = 0L;
     private final LanguageService service;
+    private final BookService bookService;
 
     @Autowired
-    LanguageServiceTest(LanguageService service) {
+    LanguageServiceTest(LanguageService service, BookService bookService) {
         this.service = service;
+        this.bookService = bookService;
     }
 
     @Test
@@ -112,6 +119,8 @@ class LanguageServiceTest {
         assertEquals(language.getId(), existing.getId());
         assertEquals(language.getName(), existing.getName());
 //        org.hibernate.LazyInitializationException: failed to lazily initialize a collection of role
+//        Hibernate.initialize(language.getBooks());
+//        Hibernate.initialize(existing.getBooks());
 //        assertEquals(language.getBooks(), existing.getBooks());
     }
 
@@ -123,7 +132,10 @@ class LanguageServiceTest {
     }
 
     @Test
-    void update() {
+    void update_isSuccessful() {
+        Language english = service.create(new LanguageDto(ENGLISH.toUpperCase()));
+
+        service.update(english.getId(), new LanguageDto(ENGLISH.toLowerCase()));
     }
 
     @Test
@@ -131,6 +143,16 @@ class LanguageServiceTest {
         EntityNotFoundException ex = assertThrows(EntityNotFoundException.class, () -> service.update(ID_NOT_FOUND, new LanguageDto(FRENCH)));
 
         assertEquals(ex.getMessage(), String.format(CANNOT_FIND_ENTITY_ID, LANGUAGE, ID_NOT_FOUND));
+    }
+
+    @Test
+    void update_throwsException_whenLanguageExists() {
+        service.create(new LanguageDto(ENGLISH));
+        Language french = service.create(new LanguageDto(FRENCH));
+        EntityAlreadyExistException ex = assertThrows(EntityAlreadyExistException.class,
+                () -> service.update(french.getId(), new LanguageDto(ENGLISH)));
+
+        assertEquals(ex.getMessage(), String.format(ENTITY_ALREADY_HAS_A, LANGUAGE, ENGLISH));
     }
 
     @Test
@@ -149,5 +171,17 @@ class LanguageServiceTest {
         EntityNotFoundException ex = assertThrows(EntityNotFoundException.class, () -> service.delete(ID_NOT_FOUND));
 
         assertEquals(ex.getMessage(), String.format(CANNOT_FIND_ENTITY_ID, LANGUAGE, ID_NOT_FOUND));
+    }
+
+    @Test
+    void delete_throwsException_whenBooksHaveThisLanguageLinked() {
+        BookDto bookInEnglish = BookServiceTest.getLandscapesOfIdentityBook();
+        Book book = bookService.create(bookInEnglish);
+        List<Language> languages = book.getLanguages().stream().toList();
+
+        assertEquals(1, languages.size());
+        EntityAlreadyLinkedException ex = assertThrows(EntityAlreadyLinkedException.class, () -> service.delete(languages.get(0).getId()));
+
+        assertEquals(ex.getMessage(), String.format(ENTITY_ALREADY_HAS_A_LINK, LANGUAGE, ENGLISH));
     }
 }

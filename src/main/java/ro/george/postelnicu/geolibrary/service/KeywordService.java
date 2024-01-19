@@ -3,47 +3,39 @@ package ro.george.postelnicu.geolibrary.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ro.george.postelnicu.geolibrary.exception.EntityAlreadyExistException;
-import ro.george.postelnicu.geolibrary.exception.EntityNotFoundException;
 import ro.george.postelnicu.geolibrary.dto.keyword.KeywordDto;
 import ro.george.postelnicu.geolibrary.dto.keyword.KeywordsDto;
+import ro.george.postelnicu.geolibrary.exception.EntityAlreadyExistException;
+import ro.george.postelnicu.geolibrary.exception.EntityAlreadyLinkedException;
+import ro.george.postelnicu.geolibrary.exception.EntityNotFoundException;
 import ro.george.postelnicu.geolibrary.mapper.LibraryMapper;
 import ro.george.postelnicu.geolibrary.model.Keyword;
-import ro.george.postelnicu.geolibrary.repository.BookKeywordRelationRepository;
 import ro.george.postelnicu.geolibrary.repository.KeywordRepository;
+import ro.george.postelnicu.geolibrary.util.StringUtil;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.springframework.transaction.annotation.Propagation.REQUIRED;
 import static ro.george.postelnicu.geolibrary.model.EntityName.KEYWORD;
+import static ro.george.postelnicu.geolibrary.util.StringUtil.splitCapitalizeAndJoin;
 
 @Service
 public class KeywordService {
     private final KeywordRepository repository;
-    private final BookKeywordRelationRepository relationRepository;
 
     @Autowired
-    public KeywordService(KeywordRepository repository, BookKeywordRelationRepository relationRepository) {
+    public KeywordService(KeywordRepository repository) {
         this.repository = repository;
-        this.relationRepository = relationRepository;
     }
 
     @Transactional
     public List<Keyword> createBulk(KeywordsDto keywordsDto) {
-        Set<String> existingKeywords = keywordsDto.getKeywords().stream()
-                .filter(repository::existsByNameIgnoreCase)
-                .collect(Collectors.toSet());
-        if (!existingKeywords.isEmpty()) {
-            throw new EntityAlreadyExistException(KEYWORD, existingKeywords);
-        }
-
-        Set<Keyword> newKeywords = keywordsDto.getKeywords().stream()
-                .map(Keyword::new)
-                .collect(Collectors.toSet());
-
-        return repository.saveAll(newKeywords);
+        return keywordsDto.getKeywords().stream()
+                .map(StringUtil::splitCapitalizeAndJoin)
+                .map(KeywordDto::new)
+                .map(this::create)
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -51,7 +43,7 @@ public class KeywordService {
         Keyword keyword = LibraryMapper.INSTANCE.toKeyword(keywordDto);
 
         if (repository.existsByNameIgnoreCase(keywordDto.getName())) {
-            throw new EntityAlreadyExistException(KEYWORD, keywordDto.getName());
+            throw new EntityAlreadyExistException(KEYWORD, splitCapitalizeAndJoin(keywordDto.getName()));
         }
 
         return repository.save(keyword);
@@ -59,10 +51,8 @@ public class KeywordService {
 
     @Transactional
     public Keyword createIfNotExisting(KeywordDto keywordDto) {
-        Keyword keyword = LibraryMapper.INSTANCE.toKeyword(keywordDto);
-
-        return repository.findByNameIgnoreCase(keyword.getName())
-                .orElse(create(keywordDto));
+        return repository.findByNameIgnoreCase(keywordDto.getName())
+                .orElseGet(() -> create(keywordDto));
     }
 
     @Transactional(readOnly = true, propagation = REQUIRED)
@@ -76,8 +66,8 @@ public class KeywordService {
         Keyword keyword = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(KEYWORD, id));
 
-        if (repository.existsByNameIgnoreCase(keywordDto.getName())) {
-            throw new EntityAlreadyExistException(KEYWORD, keywordDto.getName());
+        if (repository.existsByNameIgnoreCaseAndIdIsNot(keywordDto.getName(), id)) {
+            throw new EntityAlreadyExistException(KEYWORD, splitCapitalizeAndJoin(keywordDto.getName()));
         }
 
         LibraryMapper.INSTANCE.updateKeywordFromDto(keywordDto, keyword);
@@ -90,10 +80,10 @@ public class KeywordService {
         Keyword keyword = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(KEYWORD, id));
 
-        if (relationRepository.existsByKeywordId(id)) {
-            throw new EntityAlreadyExistException(KEYWORD, keyword.getName());
+        if (keyword.getBooks().isEmpty()) {
+            repository.delete(keyword);
+        } else {
+            throw new EntityAlreadyLinkedException(KEYWORD, keyword.getName());
         }
-
-        repository.delete(keyword);
     }
 }

@@ -26,6 +26,11 @@ public interface LibraryMapper {
     @Mapping(target = "name", source = "name")
     Author toAuthor(AuthorDto dto);
 
+    @AfterMapping
+    default void toAuthor(@MappingTarget Author author) {
+        author.setName(StringUtil.splitCapitalizeAndJoin(author.getName()));
+    }
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "books", ignore = true)
     void updateAuthorFromDto(AuthorDto dto, @MappingTarget Author entity);
@@ -34,6 +39,11 @@ public interface LibraryMapper {
 
     @Mapping(target = "name", source = "name")
     Keyword toKeyword(KeywordDto dto);
+
+    @AfterMapping
+    default void toKeyword(@MappingTarget Keyword keyword) {
+        keyword.setName(StringUtil.splitCapitalizeAndJoin(keyword.getName()));
+    }
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "books", ignore = true)

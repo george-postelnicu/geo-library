@@ -1,10 +1,10 @@
 package ro.george.postelnicu.geolibrary.service;
 
-import org.hibernate.Hibernate;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.transaction.annotation.Transactional;
 import ro.george.postelnicu.geolibrary.dto.BookDto;
 import ro.george.postelnicu.geolibrary.dto.language.LanguageDto;
 import ro.george.postelnicu.geolibrary.dto.language.LanguagesDto;
@@ -101,27 +101,25 @@ class LanguageServiceTest {
     }
 
     @Test
+    @Transactional
     void createIfNotExisting_isSuccessful_whenSameLanguageIsUsedCaseInsensitive() {
         Language language = service.createIfNotExisting(new LanguageDto(ENGLISH));
         Language existing = service.createIfNotExisting(new LanguageDto(ENGLISH.toUpperCase()));
 
         assertEquals(language.getId(), existing.getId());
         assertEquals(language.getName(), existing.getName());
-//        org.hibernate.LazyInitializationException: failed to lazily initialize a collection of role
-//        assertEquals(language.getBooks(), existing.getBooks());
+        assertEquals(language.getBooks(), existing.getBooks());
     }
 
     @Test
+    @Transactional
     void read_isSuccessful() {
         Language language = service.create(new LanguageDto(FRENCH));
 
         Language existing = service.read(language.getId());
         assertEquals(language.getId(), existing.getId());
         assertEquals(language.getName(), existing.getName());
-//        org.hibernate.LazyInitializationException: failed to lazily initialize a collection of role
-//        Hibernate.initialize(language.getBooks());
-//        Hibernate.initialize(existing.getBooks());
-//        assertEquals(language.getBooks(), existing.getBooks());
+        assertEquals(language.getBooks(), existing.getBooks());
     }
 
     @Test

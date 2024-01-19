@@ -22,12 +22,19 @@ import static ro.george.postelnicu.geolibrary.model.EntityName.BOOK;
 public class BookService {
     private final BookRepository repository;
     private final IsbnService isbnService;
+    private final AuthorService authorService;
+    private final KeywordService keywordService;
+    private final LanguageService languageService;
 
     @Autowired
-    public BookService(BookRepository repository,
-                       IsbnService isbnService) {
+    public BookService(BookRepository repository, IsbnService isbnService,
+                       AuthorService authorService, KeywordService keywordService,
+                       LanguageService languageService) {
         this.repository = repository;
         this.isbnService = isbnService;
+        this.authorService = authorService;
+        this.keywordService = keywordService;
+        this.languageService = languageService;
     }
 
     @Transactional(propagation = REQUIRED)
@@ -52,7 +59,7 @@ public class BookService {
         }
         authors.stream()
                 .map(AuthorDto::new)
-                .map(LibraryMapper.INSTANCE::toAuthor)
+                .map(authorService::createIfNotExisting)
                 .forEach(book::addAuthor);
     }
 
@@ -62,7 +69,7 @@ public class BookService {
         }
         keywords.stream()
                 .map(KeywordDto::new)
-                .map(LibraryMapper.INSTANCE::toKeyword)
+                .map(keywordService::createIfNotExisting)
                 .forEach(book::addKeyword);
     }
 
@@ -72,7 +79,7 @@ public class BookService {
         }
         languages.stream()
                 .map(LanguageDto::new)
-                .map(LibraryMapper.INSTANCE::toLanguage)
+                .map(languageService::createIfNotExisting)
                 .forEach(book::addLanguage);
     }
 

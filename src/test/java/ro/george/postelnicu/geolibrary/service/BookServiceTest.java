@@ -12,6 +12,7 @@ import ro.george.postelnicu.geolibrary.model.Book;
 import ro.george.postelnicu.geolibrary.model.Keyword;
 import ro.george.postelnicu.geolibrary.model.Language;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -49,13 +50,34 @@ class BookServiceTest {
                 book.getFullTitle());
         assertEquals("Lorem Ipsum", book.getDescription());
         assertEquals(Set.of("Linda Kalijundi", "Kadi Polli", "Bart Pushaw", "Kaja Kahrik"), getAuthorNames(book.getAuthors()));
-        assertEquals(Set.of("Museum Collection", "Kumu Art Museum", "Art", "Estonian Art"), getKeywordNames(book.getKeywords()));
+        assertEquals(Set.of("Kumu Art Museum", "Art", "Estonian Art"), getKeywordNames(book.getKeywords()));
         assertEquals(Set.of("English"), getLanguageNames(book.getLanguages()));
         assertEquals("Art Museum of Estonia", book.getPublisher());
         assertEquals(SOFTCOVER_WITH_DUST_JACKET, book.getCover());
         assertEquals(2021, book.getPublishYear());
         assertEquals(111, book.getPages());
         assertEquals("9789949687329", book.getBarcode());
+    }
+
+    @Test
+    void create_isSuccessful_whenTwoBooksReturnSameIdsForExternalEntities() {
+        Book book1 = service.create(getLandscapesOfIdentityBook());
+        Book book2 = service.create(anotherEnglishBook());
+
+        List<Language> book1Languages = book1.getLanguages().stream().toList();
+        List<Language> book2Languages = book2.getLanguages().stream().toList();
+        assertEquals(book1Languages.size(), book2Languages.size());
+        assertEquals(book1Languages.get(0).getId(), book2Languages.get(0).getId());
+
+        List<Keyword> book1Keywords = book1.getKeywords().stream().toList();
+        List<Keyword> book2Keywords = book2.getKeywords().stream().toList();
+        assertEquals(book1Keywords.size(), book2Keywords.size());
+        assertEquals(book1Keywords.get(0).getId(), book2Keywords.get(0).getId());
+
+        List<Author> book1Authors = book1.getAuthors().stream().toList();
+        List<Author> book2Authors = book2.getAuthors().stream().toList();
+        assertEquals(book1Authors.size(), book2Authors.size());
+        assertEquals(book1Authors.get(0).getId(), book2Authors.get(0).getId());
     }
 
     @Test
@@ -86,13 +108,21 @@ class BookServiceTest {
         dto.setFullTitle("Landscapes of Identity: Estonian Art 1700-1945 The 3rd-floor permanent exhibition of the Kumu Art Museum");
         dto.setDescription("Lorem Ipsum");
         dto.setAuthors(Set.of("Linda Kalijundi", "Kadi Polli", "Bart Pushaw", "Kaja Kahrik"));
-        dto.setKeywords(Set.of("Museum Collection", "Kumu Art Museum", "Art", "Estonian Art"));
+        dto.setKeywords(Set.of("Kumu Art Museum", "Art", "Estonian Art"));
         dto.setLanguages(Set.of("English"));
         dto.setPublisher("Art Museum of Estonia");
         dto.setCover(SOFTCOVER_WITH_DUST_JACKET);
         dto.setPublishYear(2021);
         dto.setPages(111);
         dto.setBarcode("9789949687329");
+        return dto;
+    }
+
+    public static BookDto anotherEnglishBook() {
+        BookDto dto = new BookDto("100 Steps Through 20th Century Estonian Architecture", "ISBN 978-9949-9078-6-1", HAVE);
+        dto.setLanguages(Set.of("English"));
+        dto.setAuthors(Set.of("Linda Kalijundi", "Kadi Polli", "Bart Pushaw", "Kaja Kahrik"));
+        dto.setKeywords(Set.of("Kumu Art Museum", "Art", "Estonian Art"));
         return dto;
     }
 

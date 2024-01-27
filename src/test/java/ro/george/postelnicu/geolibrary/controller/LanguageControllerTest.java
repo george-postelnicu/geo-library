@@ -25,8 +25,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static ro.george.postelnicu.geolibrary.DataCommon.*;
+import static ro.george.postelnicu.geolibrary.controller.ApiPrefix.BULK;
+import static ro.george.postelnicu.geolibrary.controller.ApiPrefix.LANGUAGES;
 import static ro.george.postelnicu.geolibrary.controller.GlobalControllerAdvice.BAD_REQUEST_ERROR_TYPE;
-import static ro.george.postelnicu.geolibrary.controller.LanguageController.LANGUAGE_API_BASE;
 import static ro.george.postelnicu.geolibrary.exception.EntityAlreadyExistException.ENTITY_ALREADY_HAS_A;
 import static ro.george.postelnicu.geolibrary.exception.EntityNotFoundException.CANNOT_FIND_ENTITY_ID;
 import static ro.george.postelnicu.geolibrary.model.EntityName.LANGUAGE;
@@ -37,26 +39,22 @@ import static ro.george.postelnicu.geolibrary.model.EntityName.LANGUAGE;
 })
 class LanguageControllerTest {
 
-    public static final String BULK = "/bulk";
-    public static final String ENGLISH = "English";
-    public static final String FRENCH = "French";
-    public static final String UPDATED_LANGUAGE = "German";
-    private final LanguageController languageController;
-    private final LanguageService languageService;
+    private final LanguageController controller;
+    private final LanguageService service;
     private final ObjectMapper objectMapper;
     private final Long NON_EXISTING_ID = 0L;
     private MockMvc mockMvc;
 
     @Autowired
-    LanguageControllerTest(LanguageController languageController, LanguageService languageService, ObjectMapper objectMapper) {
-        this.languageController = languageController;
-        this.languageService = languageService;
+    LanguageControllerTest(LanguageController controller, LanguageService service, ObjectMapper objectMapper) {
+        this.controller = controller;
+        this.service = service;
         this.objectMapper = objectMapper;
     }
 
     @BeforeEach
     public void setup() {
-        this.mockMvc = MockMvcBuilders.standaloneSetup(languageController)
+        this.mockMvc = MockMvcBuilders.standaloneSetup(controller)
                 .setControllerAdvice(new GlobalControllerAdvice()).build();
     }
 
@@ -67,7 +65,7 @@ class LanguageControllerTest {
 
         String responseString = this.mockMvc
                 .perform(
-                        post(LANGUAGE_API_BASE + BULK)
+                        post(LANGUAGES + BULK)
                                 .content(objectMapper.writeValueAsString(languagesDto))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -85,11 +83,11 @@ class LanguageControllerTest {
     void createBulk_shouldThrowException_whenAnyOfTheLanguagesAlreadyExists() throws Exception {
         LanguagesDto languagesDto = new LanguagesDto();
         languagesDto.setLanguages(Set.of(ENGLISH, FRENCH));
-        languageService.createBulk(languagesDto);
+        service.createBulk(languagesDto);
 
         String responseString = this.mockMvc
                 .perform(
-                        post(LANGUAGE_API_BASE + BULK)
+                        post(LANGUAGES + BULK)
                                 .content(objectMapper.writeValueAsString(languagesDto))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
@@ -110,12 +108,12 @@ class LanguageControllerTest {
 
         String responseString = this.mockMvc
                 .perform(
-                        post(LANGUAGE_API_BASE)
+                        post(LANGUAGES)
                                 .content(objectMapper.writeValueAsString(createDto))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(header().string(HttpHeaders.LOCATION, startsWith(LANGUAGE_API_BASE)))
+                .andExpect(header().string(HttpHeaders.LOCATION, startsWith(LANGUAGES)))
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
@@ -128,11 +126,11 @@ class LanguageControllerTest {
     @Test
     void create_shouldThrowException_whenLanguageExists() throws Exception {
         LanguageDto createDto = new LanguageDto(ENGLISH);
-        languageService.create(createDto);
+        service.create(createDto);
 
         String responseString = this.mockMvc
                 .perform(
-                        post(LANGUAGE_API_BASE)
+                        post(LANGUAGES)
                                 .content(objectMapper.writeValueAsString(createDto))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
@@ -149,11 +147,11 @@ class LanguageControllerTest {
     @Test
     void read_shouldReturn200_whenIdIsFound() throws Exception {
         LanguageDto createDto = new LanguageDto(ENGLISH);
-        Language createdLanguage = languageService.create(createDto);
+        Language createdLanguage = service.create(createDto);
 
         String responseString = this.mockMvc
                 .perform(
-                        get(LANGUAGE_API_BASE + "/" + createdLanguage.getId())
+                        get(STR."\{LANGUAGES}/\{createdLanguage.getId()}")
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -170,7 +168,7 @@ class LanguageControllerTest {
     void read_shouldThrowException_whenIdIsNotFound() throws Exception {
         String responseString = this.mockMvc
                 .perform(
-                        get(LANGUAGE_API_BASE + "/" + NON_EXISTING_ID)
+                        get(STR."\{LANGUAGES}/\{NON_EXISTING_ID}")
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -186,12 +184,12 @@ class LanguageControllerTest {
     @Test
     void update_shouldReturn200_whenLanguageIsUpdated() throws Exception {
         LanguageDto createDto = new LanguageDto(ENGLISH);
-        Language createdLanguage = languageService.create(createDto);
+        Language createdLanguage = service.create(createDto);
         LanguageDto updateDto = new LanguageDto(UPDATED_LANGUAGE);
 
         String responseString = this.mockMvc
                 .perform(
-                        put(LANGUAGE_API_BASE + "/" + createdLanguage.getId())
+                        put(STR."\{LANGUAGES}/\{createdLanguage.getId()}")
                                 .content(objectMapper.writeValueAsString(updateDto))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -211,7 +209,7 @@ class LanguageControllerTest {
 
         String responseString = this.mockMvc
                 .perform(
-                        put(LANGUAGE_API_BASE + "/" + NON_EXISTING_ID)
+                        put(STR."\{LANGUAGES}/\{NON_EXISTING_ID}")
                                 .content(objectMapper.writeValueAsString(createDto))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
@@ -229,11 +227,11 @@ class LanguageControllerTest {
     @Test
     void delete_shouldReturn204_whenIdIsFound() throws Exception {
         LanguageDto createDto = new LanguageDto(ENGLISH);
-        Language createdLanguage = languageService.create(createDto);
+        Language createdLanguage = service.create(createDto);
 
         this.mockMvc
                 .perform(
-                        delete(LANGUAGE_API_BASE + "/" + createdLanguage.getId())
+                        delete(STR."\{LANGUAGES}/\{createdLanguage.getId()}")
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }
@@ -242,7 +240,7 @@ class LanguageControllerTest {
     void delete_shouldThrowException_whenIdIsNotFound() throws Exception {
         String responseString = this.mockMvc
                 .perform(
-                        delete(LANGUAGE_API_BASE + "/" + NON_EXISTING_ID)
+                        delete(STR."\{LANGUAGES}/\{NON_EXISTING_ID}")
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))

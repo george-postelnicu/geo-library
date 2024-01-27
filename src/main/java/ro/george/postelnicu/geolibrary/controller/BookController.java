@@ -3,6 +3,7 @@ package ro.george.postelnicu.geolibrary.controller;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ro.george.postelnicu.geolibrary.dto.BookDto;
 import ro.george.postelnicu.geolibrary.dto.book.BookResponseDto;
@@ -17,7 +18,11 @@ import ro.george.postelnicu.geolibrary.service.BookService;
 
 import java.util.List;
 
+import static ro.george.postelnicu.geolibrary.controller.ApiPrefix.BOOKS;
+
 @RestController
+@RequestMapping(BOOKS)
+@Validated
 public class BookController {
     private final BookService service;
     private final BookSearchService searchService;
@@ -29,7 +34,7 @@ public class BookController {
         this.repository = repository;
     }
 
-    @GetMapping("/books")
+    @GetMapping()
     ResponseEntity<Page<BookResponseDto>> searchBooks(
             @RequestParam(name = "page", defaultValue = "0") Integer page,
             @RequestParam(name = "size", defaultValue = "20") Integer size,
@@ -54,21 +59,21 @@ public class BookController {
         return ResponseEntity.ok(bookResponseDtos);
     }
 
-    @PostMapping("/books")
+    @PostMapping()
     Book create(@RequestBody BookDto bookDto) {
         Book book = service.create(bookDto);
 
         return repository.save(book);
     }
 
-    @GetMapping("/books/{id}")
+    @GetMapping("/{id}")
     Book read(@PathVariable Long id) {
 
         return repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("book", id));
     }
 
-    @PutMapping("/books/{id}")
+    @PutMapping("/{id}")
     Book update(@RequestBody Book newBook, @PathVariable Long id) {
 
         return repository.findById(id)
@@ -83,7 +88,7 @@ public class BookController {
                 });
     }
 
-    @DeleteMapping("/books/{id}")
+    @DeleteMapping("/{id}")
     void delete(@PathVariable Long id) {
         repository.deleteById(id);
     }

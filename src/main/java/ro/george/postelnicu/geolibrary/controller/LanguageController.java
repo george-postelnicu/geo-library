@@ -19,13 +19,13 @@ import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.util.UriComponentsBuilder.fromPath;
-import static ro.george.postelnicu.geolibrary.controller.LanguageController.LANGUAGE_API_BASE;
+import static ro.george.postelnicu.geolibrary.controller.ApiPrefix.BULK;
+import static ro.george.postelnicu.geolibrary.controller.ApiPrefix.LANGUAGES;
 
 @RestController
-@RequestMapping(LANGUAGE_API_BASE)
+@RequestMapping(LANGUAGES)
 @Validated
 public class LanguageController {
-    public static final String LANGUAGE_API_BASE = "/languages";
     private final LanguageService service;
 
     @Autowired
@@ -33,7 +33,7 @@ public class LanguageController {
         this.service = service;
     }
 
-    @PostMapping(value = "/bulk",
+    @PostMapping(value = BULK,
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<LanguagesResponseDto> createBulk(@Valid @RequestBody LanguagesDto languagesDto) {
@@ -48,7 +48,7 @@ public class LanguageController {
             consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<LanguageResponseDto> create(@Valid @RequestBody LanguageDto languageDto) {
         Language language = service.create(languageDto);
-        URI location = fromPath(LANGUAGE_API_BASE).pathSegment("{id}")
+        URI location = fromPath(LANGUAGES).pathSegment("{id}")
                 .buildAndExpand(language.getId()).toUri();
         LanguageResponseDto responseDto = LibraryMapper.INSTANCE.toLanguageResponseDto(language);
 

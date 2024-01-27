@@ -1,5 +1,7 @@
 package ro.george.postelnicu.geolibrary.dto.author;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 
 public class AuthorDto {
@@ -7,7 +9,8 @@ public class AuthorDto {
     @NotBlank
     private String name;
 
-    public AuthorDto(String name) {
+    @JsonCreator
+    public AuthorDto(@JsonProperty("name") String name) {
         this.name = name;
     }
 

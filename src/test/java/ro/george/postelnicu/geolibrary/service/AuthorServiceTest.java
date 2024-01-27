@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static ro.george.postelnicu.geolibrary.DataCommon.*;
 import static ro.george.postelnicu.geolibrary.exception.EntityAlreadyExistException.ENTITY_ALREADY_HAS_A;
 import static ro.george.postelnicu.geolibrary.exception.EntityAlreadyLinkedException.ENTITY_ALREADY_HAS_A_LINK;
 import static ro.george.postelnicu.geolibrary.exception.EntityNotFoundException.CANNOT_FIND_ENTITY_ID;
@@ -31,9 +32,6 @@ import static ro.george.postelnicu.geolibrary.model.EntityName.AUTHOR;
 })
 class AuthorServiceTest {
 
-    public static final String LINDA = "Linda Kalijundi";
-    public static final String BART = "Bart Pushaw";
-    public static final long ID_NOT_FOUND = 0L;
     private final AuthorService service;
     private final BookService bookService;
 
@@ -181,7 +179,7 @@ class AuthorServiceTest {
         authors.sort(Comparator.comparing(Author::getName));
 
         assertEquals(bookInEnglish.getAuthors().size(), authors.size());
-        EntityAlreadyLinkedException ex = assertThrows(EntityAlreadyLinkedException.class, () -> service.delete(authors.get(0).getId()));
+        EntityAlreadyLinkedException ex = assertThrows(EntityAlreadyLinkedException.class, () -> service.delete(authors.getFirst().getId()));
 
         assertEquals(String.format(ENTITY_ALREADY_HAS_A_LINK, AUTHOR, BART), ex.getMessage());
     }

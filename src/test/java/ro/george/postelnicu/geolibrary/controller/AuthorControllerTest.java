@@ -10,59 +10,60 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ro.george.postelnicu.geolibrary.dto.ErrorDto;
-import ro.george.postelnicu.geolibrary.dto.keyword.KeywordDto;
-import ro.george.postelnicu.geolibrary.dto.keyword.KeywordResponseDto;
-import ro.george.postelnicu.geolibrary.dto.keyword.KeywordsDto;
-import ro.george.postelnicu.geolibrary.dto.keyword.KeywordsResponseDto;
-import ro.george.postelnicu.geolibrary.model.Keyword;
-import ro.george.postelnicu.geolibrary.service.KeywordService;
+import ro.george.postelnicu.geolibrary.dto.author.AuthorDto;
+import ro.george.postelnicu.geolibrary.dto.author.AuthorResponseDto;
+import ro.george.postelnicu.geolibrary.dto.author.AuthorsDto;
+import ro.george.postelnicu.geolibrary.dto.author.AuthorsResponseDto;
+import ro.george.postelnicu.geolibrary.model.Author;
+import ro.george.postelnicu.geolibrary.service.AuthorService;
 
 import java.util.Set;
 
+import static java.lang.StringTemplate.STR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ro.george.postelnicu.geolibrary.DataCommon.*;
+import static ro.george.postelnicu.geolibrary.controller.ApiPrefix.AUTHORS;
 import static ro.george.postelnicu.geolibrary.controller.ApiPrefix.BULK;
-import static ro.george.postelnicu.geolibrary.controller.ApiPrefix.KEYWORDS;
 import static ro.george.postelnicu.geolibrary.controller.GlobalControllerAdvice.BAD_REQUEST_ERROR_TYPE;
 import static ro.george.postelnicu.geolibrary.exception.EntityAlreadyExistException.ENTITY_ALREADY_HAS_A;
 import static ro.george.postelnicu.geolibrary.exception.EntityNotFoundException.CANNOT_FIND_ENTITY_ID;
-import static ro.george.postelnicu.geolibrary.model.EntityName.KEYWORD;
+import static ro.george.postelnicu.geolibrary.model.EntityName.AUTHOR;
 
 @SpringBootTest
 @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {
         "classpath:/sql/clean-all-data.sql",
 })
-class KeywordControllerTest {
-    private final KeywordController controller;
-    private final KeywordService service;
+class AuthorControllerTest {
+
+    private final AuthorController authorController;
+    private final AuthorService service;
     private final ObjectMapper objectMapper;
-    private final Long NON_EXISTING_ID = 0L;
     private MockMvc mockMvc;
 
     @Autowired
-    KeywordControllerTest(KeywordController controller, KeywordService service, ObjectMapper objectMapper) {
-        this.controller = controller;
+    AuthorControllerTest(AuthorController controller, AuthorService service, ObjectMapper objectMapper) {
+        this.authorController = controller;
         this.service = service;
         this.objectMapper = objectMapper;
     }
 
     @BeforeEach
     public void setup() {
-        this.mockMvc = MockMvcBuilders.standaloneSetup(controller)
+        this.mockMvc = MockMvcBuilders.standaloneSetup(authorController)
                 .setControllerAdvice(new GlobalControllerAdvice()).build();
     }
 
     @Test
-    void createBulk_shouldReturn200_whenKeywordsDoNotExist() throws Exception {
-        KeywordsDto dto = new KeywordsDto();
-        dto.setKeywords(Set.of(ART, ARCHITECTURE));
+    void createBulk_shouldReturn200_whenAuthorsDoNotExist() throws Exception {
+        AuthorsDto dto = new AuthorsDto();
+        dto.setAuthors(Set.of(LINDA, BART));
 
         String responseString = this.mockMvc.perform(
-                        post(KEYWORDS + BULK)
+                        post(AUTHORS + BULK)
                                 .content(objectMapper.writeValueAsString(dto))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -70,20 +71,20 @@ class KeywordControllerTest {
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-        KeywordsResponseDto responseDto = objectMapper.readValue(responseString, KeywordsResponseDto.class);
+        AuthorsResponseDto responseDto = objectMapper.readValue(responseString, AuthorsResponseDto.class);
 
         assertNotNull(responseDto.getElements());
         assertEquals(2, responseDto.getElements().size());
     }
 
     @Test
-    void createBulk_shouldThrowException_whenAnyOfTheKeywordsAlreadyExists() throws Exception {
-        KeywordsDto dto = new KeywordsDto();
-        dto.setKeywords(Set.of(ART, ARCHITECTURE));
+    void createBulk_shouldThrowException_whenAnyOfTheAuthorsAlreadyExists() throws Exception {
+        AuthorsDto dto = new AuthorsDto();
+        dto.setAuthors(Set.of(LINDA, BART));
         service.createBulk(dto);
 
         String responseString = this.mockMvc.perform(
-                        post(KEYWORDS + BULK)
+                        post(AUTHORS + BULK)
                                 .content(objectMapper.writeValueAsString(dto))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
@@ -95,36 +96,36 @@ class KeywordControllerTest {
         ErrorDto errorDto = objectMapper.readValue(responseString, ErrorDto.class);
 
         assertEquals(BAD_REQUEST_ERROR_TYPE, errorDto.getTitle());
-        assertEquals(String.format(ENTITY_ALREADY_HAS_A, KEYWORD, ART), errorDto.getDetail());
+        assertEquals(String.format(ENTITY_ALREADY_HAS_A, AUTHOR, BART), errorDto.getDetail());
     }
 
     @Test
-    void create_shouldReturn201_whenKeywordDoesNotExist() throws Exception {
-        KeywordDto keywordDto = new KeywordDto(ART);
+    void create_shouldReturn201_whenAuthorDoesNotExist() throws Exception {
+        AuthorDto dto = new AuthorDto(LINDA);
 
         String responseString = this.mockMvc.perform(
-                        post(KEYWORDS)
-                                .content(objectMapper.writeValueAsString(keywordDto))
+                        post(AUTHORS)
+                                .content(objectMapper.writeValueAsString(dto))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-        KeywordResponseDto responseDto = objectMapper.readValue(responseString, KeywordResponseDto.class);
+        AuthorResponseDto responseDto = objectMapper.readValue(responseString, AuthorResponseDto.class);
 
         assertNotNull(responseDto.getName());
-        assertEquals(keywordDto.getName(), responseDto.getName());
+        assertEquals(dto.getName(), responseDto.getName());
     }
 
     @Test
-    void create_shouldThrowException_whenKeywordExists() throws Exception {
-        KeywordDto keywordDto = new KeywordDto(ART);
-        service.create(keywordDto);
+    void create_shouldThrowException_whenAuthorExists() throws Exception {
+        AuthorDto dto = new AuthorDto(LINDA);
+        service.create(dto);
 
         String responseString = this.mockMvc.perform(
-                        post(KEYWORDS)
-                                .content(objectMapper.writeValueAsString(keywordDto))
+                        post(AUTHORS)
+                                .content(objectMapper.writeValueAsString(dto))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -135,32 +136,32 @@ class KeywordControllerTest {
         ErrorDto errorDto = objectMapper.readValue(responseString, ErrorDto.class);
 
         assertEquals(BAD_REQUEST_ERROR_TYPE, errorDto.getTitle());
-        assertEquals(String.format(ENTITY_ALREADY_HAS_A, KEYWORD, ART), errorDto.getDetail());
+        assertEquals(String.format(ENTITY_ALREADY_HAS_A, AUTHOR, LINDA), errorDto.getDetail());
     }
 
     @Test
     void read_shouldReturn200_whenIdIsFound() throws Exception {
-        KeywordDto keywordDto = new KeywordDto(ART);
-        Keyword keyword = service.create(keywordDto);
+        AuthorDto dto = new AuthorDto(LINDA);
+        Author author = service.create(dto);
 
         String responseString = this.mockMvc.perform(
-                        get(STR."\{KEYWORDS}/\{keyword.getId()}")
+                        get(STR."\{AUTHORS}/\{author.getId()}")
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-        KeywordResponseDto responseDto = objectMapper.readValue(responseString, KeywordResponseDto.class);
+        AuthorResponseDto responseDto = objectMapper.readValue(responseString, AuthorResponseDto.class);
 
         assertNotNull(responseDto.getName());
-        assertEquals(keyword.getName(), responseDto.getName());
+        assertEquals(author.getName(), responseDto.getName());
     }
 
     @Test
     void read_shouldThrowException_whenIdIsNotFound() throws Exception {
         String responseString = this.mockMvc.perform(
-                        get(STR."\{KEYWORDS}/\{NON_EXISTING_ID}")
+                        get(STR."\{AUTHORS}/\{ID_NOT_FOUND}")
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -171,37 +172,37 @@ class KeywordControllerTest {
         ErrorDto errorDto = objectMapper.readValue(responseString, ErrorDto.class);
 
         assertEquals(BAD_REQUEST_ERROR_TYPE, errorDto.getTitle());
-        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, KEYWORD, NON_EXISTING_ID), errorDto.getDetail());
+        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, AUTHOR, ID_NOT_FOUND), errorDto.getDetail());
     }
 
     @Test
-    void update_shouldReturn200_whenKeywordIsUpdated() throws Exception {
-        KeywordDto keywordDto = new KeywordDto(ART);
-        Keyword keyword = service.create(keywordDto);
+    void update_shouldReturn200_whenAuthorIsUpdated() throws Exception {
+        AuthorDto authorDto = new AuthorDto(LINDA);
+        Author author = service.create(authorDto);
 
-        keywordDto.setName(UPDATED_KEYWORD);
+        authorDto.setName(UPDATED_AUTHOR);
 
         String responseString = this.mockMvc.perform(
-                        put(STR."\{KEYWORDS}/\{keyword.getId()}")
-                                .content(objectMapper.writeValueAsString(keywordDto))
+                        put(STR."\{AUTHORS}/\{author.getId()}")
+                                .content(objectMapper.writeValueAsString(authorDto))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-        KeywordResponseDto responseDto = objectMapper.readValue(responseString, KeywordResponseDto.class);
+        AuthorResponseDto responseDto = objectMapper.readValue(responseString, AuthorResponseDto.class);
 
         assertNotNull(responseDto.getName());
-        assertEquals(UPDATED_KEYWORD, responseDto.getName());
+        assertEquals(UPDATED_AUTHOR, responseDto.getName());
     }
 
     @Test
     void update_shouldThrowException_whenIdIsNotFound() throws Exception {
-        KeywordDto keywordDto = new KeywordDto(ART);
+        AuthorDto authorDto = new AuthorDto(LINDA);
         String responseString = this.mockMvc.perform(
-                        put(STR."\{KEYWORDS}/\{NON_EXISTING_ID}")
-                                .content(objectMapper.writeValueAsString(keywordDto))
+                        put(STR."\{AUTHORS}/\{ID_NOT_FOUND}")
+                                .content(objectMapper.writeValueAsString(authorDto))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -212,16 +213,16 @@ class KeywordControllerTest {
         ErrorDto errorDto = objectMapper.readValue(responseString, ErrorDto.class);
 
         assertEquals(BAD_REQUEST_ERROR_TYPE, errorDto.getTitle());
-        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, KEYWORD, NON_EXISTING_ID), errorDto.getDetail());
+        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, AUTHOR, ID_NOT_FOUND), errorDto.getDetail());
     }
 
     @Test
     void delete_shouldReturn204_whenIdIsFound() throws Exception {
-        KeywordDto keywordDto = new KeywordDto(ART);
-        Keyword keyword = service.create(keywordDto);
+        AuthorDto authorDto = new AuthorDto(LINDA);
+        Author author = service.create(authorDto);
 
         this.mockMvc.perform(
-                        delete(STR."\{KEYWORDS}/\{keyword.getId()}")
+                        delete(STR."\{AUTHORS}/\{author.getId()}")
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }
@@ -229,7 +230,7 @@ class KeywordControllerTest {
     @Test
     void delete_shouldThrowException_whenIdIsNotFound() throws Exception {
         String responseString = this.mockMvc.perform(
-                        delete(STR."\{KEYWORDS}/\{NON_EXISTING_ID}")
+                        delete(STR."\{AUTHORS}/\{ID_NOT_FOUND}")
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -240,6 +241,6 @@ class KeywordControllerTest {
         ErrorDto errorDto = objectMapper.readValue(responseString, ErrorDto.class);
 
         assertEquals(BAD_REQUEST_ERROR_TYPE, errorDto.getTitle());
-        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, KEYWORD, NON_EXISTING_ID), errorDto.getDetail());
+        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, AUTHOR, ID_NOT_FOUND), errorDto.getDetail());
     }
 }

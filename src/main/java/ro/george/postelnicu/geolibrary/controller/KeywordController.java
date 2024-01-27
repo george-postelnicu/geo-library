@@ -18,20 +18,20 @@ import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.util.UriComponentsBuilder.fromPath;
-import static ro.george.postelnicu.geolibrary.controller.KeywordController.KEYWORD_API_BASE;
+import static ro.george.postelnicu.geolibrary.controller.ApiPrefix.BULK;
+import static ro.george.postelnicu.geolibrary.controller.ApiPrefix.KEYWORDS;
 
 @RestController
-@RequestMapping(KEYWORD_API_BASE)
+@RequestMapping(KEYWORDS)
 @Validated
 public class KeywordController {
-    public static final String KEYWORD_API_BASE = "/keywords";
     private final KeywordService service;
 
     public KeywordController(KeywordService service) {
         this.service = service;
     }
 
-    @PostMapping(value = "/bulk",
+    @PostMapping(value = BULK,
             produces = APPLICATION_JSON_VALUE,
             consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeywordsResponseDto> createBulk(@Valid @RequestBody KeywordsDto keywordsDto) {
@@ -46,7 +46,7 @@ public class KeywordController {
             consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<KeywordResponseDto> create(@Valid @RequestBody KeywordDto keywordDto) {
         Keyword keyword = service.create(keywordDto);
-        URI location = fromPath(KEYWORD_API_BASE).pathSegment("{id}")
+        URI location = fromPath(KEYWORDS).pathSegment("{id}")
                 .buildAndExpand(keyword.getId()).toUri();
         KeywordResponseDto responseDto = LibraryMapper.INSTANCE.toKeywordResponseDto(keyword);
 

@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static ro.george.postelnicu.geolibrary.DataCommon.*;
 import static ro.george.postelnicu.geolibrary.exception.EntityAlreadyExistException.ENTITY_ALREADY_HAS_A;
 import static ro.george.postelnicu.geolibrary.exception.EntityAlreadyLinkedException.ENTITY_ALREADY_HAS_A_LINK;
 import static ro.george.postelnicu.geolibrary.exception.EntityNotFoundException.CANNOT_FIND_ENTITY_ID;
@@ -29,10 +30,6 @@ import static ro.george.postelnicu.geolibrary.model.EntityName.KEYWORD;
         "classpath:/sql/clean-all-data.sql",
 })
 class KeywordServiceTest {
-
-    public static final String ART = "Art";
-    public static final String ARCHITECTURE = "Architecture";
-    public static final long ID_NOT_FOUND = 0L;
     private final KeywordService service;
     private final BookService bookService;
 
@@ -179,7 +176,7 @@ class KeywordServiceTest {
         List<Keyword> keywords = book.getKeywords().stream().toList();
 
         assertEquals(bookInEnglish.getKeywords().size(), keywords.size());
-        EntityAlreadyLinkedException ex = assertThrows(EntityAlreadyLinkedException.class, () -> service.delete(keywords.get(0).getId()));
+        EntityAlreadyLinkedException ex = assertThrows(EntityAlreadyLinkedException.class, () -> service.delete(keywords.getFirst().getId()));
 
         assertEquals(String.format(ENTITY_ALREADY_HAS_A_LINK, KEYWORD, ART), ex.getMessage());
     }

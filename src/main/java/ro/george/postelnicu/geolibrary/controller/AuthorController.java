@@ -2,6 +2,7 @@ package ro.george.postelnicu.geolibrary.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ro.george.postelnicu.geolibrary.dto.author.AuthorDto;
 import ro.george.postelnicu.geolibrary.dto.author.AuthorResponseDto;
@@ -17,8 +18,12 @@ import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.util.UriComponentsBuilder.fromPath;
+import static ro.george.postelnicu.geolibrary.controller.ApiPrefix.AUTHORS;
+import static ro.george.postelnicu.geolibrary.controller.ApiPrefix.BULK;
 
 @RestController
+@RequestMapping(AUTHORS)
+@Validated
 public class AuthorController {
     private final AuthorService service;
 
@@ -26,7 +31,7 @@ public class AuthorController {
         this.service = service;
     }
 
-    @PostMapping(value = "/authors-bulk",
+    @PostMapping(value = BULK,
             produces = APPLICATION_JSON_VALUE,
             consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<AuthorsResponseDto> createBulk(@Valid @RequestBody AuthorsDto authorsDto) {
@@ -37,8 +42,7 @@ public class AuthorController {
         return ResponseEntity.ok().body(AuthorsResponseDto.of(responseDtos));
     }
 
-    @PostMapping(value = "/authors",
-            produces = APPLICATION_JSON_VALUE,
+    @PostMapping(produces = APPLICATION_JSON_VALUE,
             consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<AuthorResponseDto> create(@Valid @RequestBody AuthorDto authorDto) {
         Author author = service.create(authorDto);
@@ -49,7 +53,7 @@ public class AuthorController {
         return ResponseEntity.created(location).body(responseDto);
     }
 
-    @GetMapping(value = "/authors/{id}", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{id}", produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<AuthorResponseDto> read(@PathVariable Long id) {
         Author author = service.read(id);
         AuthorResponseDto responseDto = LibraryMapper.INSTANCE.toAuthorResponseDto(author);
@@ -57,7 +61,7 @@ public class AuthorController {
         return ResponseEntity.ok().body(responseDto);
     }
 
-    @PutMapping(value = "/authors/{id}",
+    @PutMapping(value = "/{id}",
             produces = APPLICATION_JSON_VALUE,
             consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<AuthorResponseDto> update(@PathVariable Long id,
@@ -67,7 +71,7 @@ public class AuthorController {
         return ResponseEntity.ok().body(responseDto);
     }
 
-    @DeleteMapping(value = "/authors/{id}", produces = APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/{id}", produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
 

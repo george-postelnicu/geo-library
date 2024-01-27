@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static ro.george.postelnicu.geolibrary.DataCommon.*;
 import static ro.george.postelnicu.geolibrary.exception.EntityAlreadyExistException.ENTITY_ALREADY_HAS_A;
 import static ro.george.postelnicu.geolibrary.exception.EntityAlreadyLinkedException.ENTITY_ALREADY_HAS_A_LINK;
 import static ro.george.postelnicu.geolibrary.exception.EntityNotFoundException.CANNOT_FIND_ENTITY_ID;
@@ -29,10 +30,6 @@ import static ro.george.postelnicu.geolibrary.model.EntityName.LANGUAGE;
         "classpath:/sql/clean-all-data.sql",
 })
 class LanguageServiceTest {
-
-    public static final String ENGLISH = "English";
-    public static final String FRENCH = "French";
-    public static final long ID_NOT_FOUND = 0L;
     private final LanguageService service;
     private final BookService bookService;
 
@@ -179,7 +176,7 @@ class LanguageServiceTest {
         List<Language> languages = book.getLanguages().stream().toList();
 
         assertEquals(1, languages.size());
-        EntityAlreadyLinkedException ex = assertThrows(EntityAlreadyLinkedException.class, () -> service.delete(languages.get(0).getId()));
+        EntityAlreadyLinkedException ex = assertThrows(EntityAlreadyLinkedException.class, () -> service.delete(languages.getFirst().getId()));
 
         assertEquals(String.format(ENTITY_ALREADY_HAS_A_LINK, LANGUAGE, ENGLISH), ex.getMessage());
     }

@@ -2,9 +2,8 @@ package ro.george.postelnicu.geolibrary.service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
+import ro.george.postelnicu.geolibrary.AbstractIntegrationTest;
 import ro.george.postelnicu.geolibrary.dto.BookDto;
 import ro.george.postelnicu.geolibrary.dto.language.LanguageDto;
 import ro.george.postelnicu.geolibrary.dto.language.LanguagesDto;
@@ -25,11 +24,7 @@ import static ro.george.postelnicu.geolibrary.exception.EntityAlreadyLinkedExcep
 import static ro.george.postelnicu.geolibrary.exception.EntityNotFoundException.CANNOT_FIND_ENTITY_ID;
 import static ro.george.postelnicu.geolibrary.model.EntityName.LANGUAGE;
 
-@SpringBootTest
-@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {
-        "classpath:/sql/clean-all-data.sql",
-})
-class LanguageServiceTest {
+class LanguageServiceTest extends AbstractIntegrationTest {
     private final LanguageService service;
     private final BookService bookService;
 
@@ -130,8 +125,8 @@ class LanguageServiceTest {
     void update_isSuccessful() {
         Language english = service.create(new LanguageDto(ENGLISH.toUpperCase()));
 
-        Language update = service.update(english.getId(), new LanguageDto(ENGLISH + "s"));
-        assertEquals(ENGLISH + "s", update.getName());
+        Language update = service.update(english.getId(), new LanguageDto(UPDATED_LANGUAGE));
+        assertEquals(UPDATED_LANGUAGE, update.getName());
     }
 
     @Test
@@ -171,7 +166,7 @@ class LanguageServiceTest {
 
     @Test
     void delete_throwsException_whenBooksHaveThisLanguageLinked() {
-        BookDto bookInEnglish = BookServiceTest.getLandscapesOfIdentityBook();
+        BookDto bookInEnglish = getLandscapesOfIdentityBook();
         Book book = bookService.create(bookInEnglish);
         List<Language> languages = book.getLanguages().stream().toList();
 

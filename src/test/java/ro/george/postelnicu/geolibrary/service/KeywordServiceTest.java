@@ -2,9 +2,8 @@ package ro.george.postelnicu.geolibrary.service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
+import ro.george.postelnicu.geolibrary.AbstractIntegrationTest;
 import ro.george.postelnicu.geolibrary.dto.BookDto;
 import ro.george.postelnicu.geolibrary.dto.keyword.KeywordDto;
 import ro.george.postelnicu.geolibrary.dto.keyword.KeywordsDto;
@@ -25,11 +24,7 @@ import static ro.george.postelnicu.geolibrary.exception.EntityAlreadyLinkedExcep
 import static ro.george.postelnicu.geolibrary.exception.EntityNotFoundException.CANNOT_FIND_ENTITY_ID;
 import static ro.george.postelnicu.geolibrary.model.EntityName.KEYWORD;
 
-@SpringBootTest
-@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {
-        "classpath:/sql/clean-all-data.sql",
-})
-class KeywordServiceTest {
+class KeywordServiceTest extends AbstractIntegrationTest {
     private final KeywordService service;
     private final BookService bookService;
 
@@ -130,8 +125,8 @@ class KeywordServiceTest {
     void update_isSuccessful() {
         Keyword art = service.create(new KeywordDto(ART.toUpperCase()));
 
-        Keyword update = service.update(art.getId(), new KeywordDto(ART + "s"));
-        assertEquals(ART + "s", update.getName());
+        Keyword update = service.update(art.getId(), new KeywordDto(UPDATED_KEYWORD));
+        assertEquals(UPDATED_KEYWORD, update.getName());
     }
 
     @Test
@@ -171,7 +166,7 @@ class KeywordServiceTest {
 
     @Test
     void delete_throwsException_whenBooksHaveThisAuthorLinked() {
-        BookDto bookInEnglish = BookServiceTest.getLandscapesOfIdentityBook();
+        BookDto bookInEnglish = getLandscapesOfIdentityBook();
         Book book = bookService.create(bookInEnglish);
         List<Keyword> keywords = book.getKeywords().stream().toList();
 

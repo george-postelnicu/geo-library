@@ -4,11 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import ro.george.postelnicu.geolibrary.AbstractIntegrationTest;
 import ro.george.postelnicu.geolibrary.dto.ErrorDto;
 import ro.george.postelnicu.geolibrary.dto.author.AuthorDto;
 import ro.george.postelnicu.geolibrary.dto.author.AuthorResponseDto;
@@ -19,7 +18,6 @@ import ro.george.postelnicu.geolibrary.service.AuthorService;
 
 import java.util.Set;
 
-import static java.lang.StringTemplate.STR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -33,11 +31,7 @@ import static ro.george.postelnicu.geolibrary.exception.EntityAlreadyExistExcept
 import static ro.george.postelnicu.geolibrary.exception.EntityNotFoundException.CANNOT_FIND_ENTITY_ID;
 import static ro.george.postelnicu.geolibrary.model.EntityName.AUTHOR;
 
-@SpringBootTest
-@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {
-        "classpath:/sql/clean-all-data.sql",
-})
-class AuthorControllerTest {
+class AuthorControllerTest extends AbstractIntegrationTest {
 
     private final AuthorController authorController;
     private final AuthorService service;

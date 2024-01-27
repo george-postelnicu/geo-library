@@ -2,9 +2,8 @@ package ro.george.postelnicu.geolibrary.service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
+import ro.george.postelnicu.geolibrary.AbstractIntegrationTest;
 import ro.george.postelnicu.geolibrary.dto.BookDto;
 import ro.george.postelnicu.geolibrary.dto.author.AuthorDto;
 import ro.george.postelnicu.geolibrary.dto.author.AuthorsDto;
@@ -26,11 +25,7 @@ import static ro.george.postelnicu.geolibrary.exception.EntityAlreadyLinkedExcep
 import static ro.george.postelnicu.geolibrary.exception.EntityNotFoundException.CANNOT_FIND_ENTITY_ID;
 import static ro.george.postelnicu.geolibrary.model.EntityName.AUTHOR;
 
-@SpringBootTest
-@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {
-        "classpath:/sql/clean-all-data.sql",
-})
-class AuthorServiceTest {
+class AuthorServiceTest extends AbstractIntegrationTest {
 
     private final AuthorService service;
     private final BookService bookService;
@@ -132,8 +127,8 @@ class AuthorServiceTest {
     void update_isSuccessful() {
         Author linda = service.create(new AuthorDto(LINDA.toUpperCase()));
 
-        Author update = service.update(linda.getId(), new AuthorDto(LINDA + " III"));
-        assertEquals(LINDA + " III", update.getName());
+        Author update = service.update(linda.getId(), new AuthorDto(UPDATED_AUTHOR));
+        assertEquals(UPDATED_AUTHOR, update.getName());
     }
 
     @Test
@@ -173,7 +168,7 @@ class AuthorServiceTest {
 
     @Test
     void delete_throwsException_whenBooksHaveThisAuthorLinked() {
-        BookDto bookInEnglish = BookServiceTest.getLandscapesOfIdentityBook();
+        BookDto bookInEnglish = getLandscapesOfIdentityBook();
         Book book = bookService.create(bookInEnglish);
         List<Author> authors = new ArrayList<>(book.getAuthors().stream().toList());
         authors.sort(Comparator.comparing(Author::getName));

@@ -2,7 +2,7 @@ package ro.george.postelnicu.geolibrary.service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import ro.george.postelnicu.geolibrary.AbstractIntegrationTest;
 import ro.george.postelnicu.geolibrary.exception.EntityValidationException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -10,8 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static ro.george.postelnicu.geolibrary.exception.EntityValidationException.ENTITY_VALIDATION_FAILURE;
 import static ro.george.postelnicu.geolibrary.model.EntityName.BOOK;
 
-@SpringBootTest
-class IsbnServiceTest {
+class IsbnServiceTest extends AbstractIntegrationTest {
 
     public static final String INVALID_ISBN = "Invalid ISBN";
     public static final String INVALID_ISBN_CHECK_DIGIT = "Invalid ISBN check digit";

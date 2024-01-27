@@ -166,7 +166,7 @@ class LanguageServiceTest extends AbstractIntegrationTest {
 
     @Test
     void delete_throwsException_whenBooksHaveThisLanguageLinked() {
-        BookDto bookInEnglish = getLandscapesOfIdentityBook();
+        BookDto bookInEnglish = landscapesOfIdentity();
         Book book = bookService.create(bookInEnglish);
         List<Language> languages = book.getLanguages().stream().toList();
 

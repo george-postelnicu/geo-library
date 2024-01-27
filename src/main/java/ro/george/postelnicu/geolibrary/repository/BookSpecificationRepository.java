@@ -32,6 +32,8 @@ public class BookSpecificationRepository {
     public Page<Book> search(@NotNull @Valid BookSearchCriteria searchCriteria, @NotNull Pageable pageRequest) {
         List<Specification<Book>> specifications = new ArrayList<>();
         specifications.add(buildPublisherAndCover(searchCriteria));
+        specifications.add(buildPublishYear(searchCriteria));
+        specifications.add(buildPages(searchCriteria));
 //        specifications.add(buildAuthors(searchCriteria));
 //        specifications.add(buildKeywords(searchCriteria));
 //        specifications.add(buildLanguages(searchCriteria));
@@ -40,55 +42,75 @@ public class BookSpecificationRepository {
     }
 
     private static Specification<Book> buildPublisherAndCover(BookSearchCriteria searchCriteria) {
-        Specification<Book> publisherSpec = isNull(searchCriteria.getPublisher()) ? ignore()
-                : buildSpecification(searchCriteria.getPublisher(), root -> root.get("publisher"));
-        Specification<Book> coverTypeSpec = isNull(searchCriteria.getCoverType()) ? ignore()
-                : buildSpecification(searchCriteria.getCoverType(), root -> root.get("cover"));
+        Specification<Book> publisherSpec = isNull(searchCriteria.publisher()) ? ignore()
+                : buildSpecification(searchCriteria.publisher(), root -> root.get("publisher"));
+        Specification<Book> coverTypeSpec = isNull(searchCriteria.coverType()) ? ignore()
+                : buildSpecification(searchCriteria.coverType(), root -> root.get("cover"));
 
         return allOf(publisherSpec, coverTypeSpec);
     }
 
     private static Specification<Book> buildPublishYear(BookSearchCriteria searchCriteria) {
-        if (isNull(searchCriteria.getMinYear()) && isNull(searchCriteria.getMaxYear())) {
+        if (isNull(searchCriteria.minYear()) && isNull(searchCriteria.maxYear())) {
             return ignore();
         }
 
-        return (root, query, cb) -> {
+        return compareIntegers("publishYear", searchCriteria.minYear(), searchCriteria.maxYear());
+    }
+
+    private static Specification<Book> buildPages(BookSearchCriteria searchCriteria) {
+        if (isNull(searchCriteria.minPages()) && isNull(searchCriteria.maxPages())) {
+            return ignore();
+        }
+
+        return compareIntegers("pages", searchCriteria.minPages(), searchCriteria.maxPages());
+    }
+
+    private static Specification<Book> compareIntegers(String columnName, Integer min, Integer max) {
+        return (root, _, cb) -> {
             Predicate greaterThanOrEqualTo = null;
             Predicate lessThanOrEqualTo = null;
-            if (nonNull(searchCriteria.getMinYear())) {
-                greaterThanOrEqualTo = cb.greaterThanOrEqualTo(root.get("publishYear"), searchCriteria.getMinYear());
+            if (nonNull(min)) {
+                greaterThanOrEqualTo = cb.greaterThanOrEqualTo(root.get(columnName), min);
             }
-            if (nonNull(searchCriteria.getMaxYear())) {
-                lessThanOrEqualTo = cb.lessThanOrEqualTo(root.get("publishYear"), searchCriteria.getMaxYear());
+            if (nonNull(max)) {
+                lessThanOrEqualTo = cb.lessThanOrEqualTo(root.get(columnName), max);
             }
 
-            return cb.and(greaterThanOrEqualTo, lessThanOrEqualTo);
+            if (greaterThanOrEqualTo != null && lessThanOrEqualTo != null) {
+                return cb.and(greaterThanOrEqualTo, lessThanOrEqualTo);
+            } else if (greaterThanOrEqualTo != null) {
+                return greaterThanOrEqualTo;
+            } else if (lessThanOrEqualTo != null) {
+                return lessThanOrEqualTo;
+            } else {
+                return cb.conjunction();
+            }
         };
     }
 
     private static Specification<Book> buildAuthors(BookSearchCriteria searchCriteria) {
-        if (searchCriteria.getAuthors().isEmpty()) {
+        if (searchCriteria.authors().isEmpty()) {
             return ignore();
         }
 
-        return ((root, query, cb) -> root.get("authors").get("name").in(searchCriteria.getAuthors()));
+        return ((root, query, cb) -> root.get("authors").get("name").in(searchCriteria.authors()));
     }
 
     private static Specification<Book> buildKeywords(BookSearchCriteria searchCriteria) {
-        if (searchCriteria.getKeywords().isEmpty()) {
+        if (searchCriteria.keywords().isEmpty()) {
             return ignore();
         }
 
-        return ((root, query, cb) -> root.get("keywords").get("name").in(searchCriteria.getKeywords()));
+        return ((root, query, cb) -> root.get("keywords").get("name").in(searchCriteria.keywords()));
     }
 
     private static Specification<Book> buildLanguages(BookSearchCriteria searchCriteria) {
-        if (searchCriteria.getLanguages().isEmpty()) {
+        if (searchCriteria.languages().isEmpty()) {
             return ignore();
         }
 
-        return ((root, query, cb) -> root.get("languages").get("name").in(searchCriteria.getLanguages()));
+        return ((root, query, cb) -> root.get("languages").get("name").in(searchCriteria.languages()));
     }
 
     private static <Book> Specification<Book> ignore() {

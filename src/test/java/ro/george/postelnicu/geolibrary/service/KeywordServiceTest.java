@@ -166,7 +166,7 @@ class KeywordServiceTest extends AbstractIntegrationTest {
 
     @Test
     void delete_throwsException_whenBooksHaveThisAuthorLinked() {
-        BookDto bookInEnglish = getLandscapesOfIdentityBook();
+        BookDto bookInEnglish = landscapesOfIdentity();
         Book book = bookService.create(bookInEnglish);
         List<Keyword> keywords = book.getKeywords().stream().toList();
 

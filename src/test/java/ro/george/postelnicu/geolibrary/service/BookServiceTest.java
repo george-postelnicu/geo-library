@@ -34,7 +34,7 @@ class BookServiceTest extends AbstractIntegrationTest {
 
     @Test
     void create_isSuccessful_whenFullBookDetailsAreGiven() {
-        BookDto dto = DataCommon.getLandscapesOfIdentityBook();
+        BookDto dto = DataCommon.landscapesOfIdentity();
 
         Book book = service.create(dto);
 
@@ -57,7 +57,7 @@ class BookServiceTest extends AbstractIntegrationTest {
 
     @Test
     void create_isSuccessful_whenTwoBooksReturnSameIdsForExternalEntities() {
-        Book book1 = service.create(DataCommon.getLandscapesOfIdentityBook());
+        Book book1 = service.create(DataCommon.landscapesOfIdentity());
         Book book2 = service.create(DataCommon.anotherEnglishBook());
 
         List<Language> book1Languages = book1.getLanguages().stream().toList();
@@ -78,8 +78,8 @@ class BookServiceTest extends AbstractIntegrationTest {
 
     @Test
     void create_throwsException_whenNameAlreadyExistsCaseInsensitive() {
-        BookDto dto = DataCommon.getLandscapesOfIdentityBook();
-        BookDto fail = DataCommon.getLandscapesOfIdentityBook();
+        BookDto dto = DataCommon.landscapesOfIdentity();
+        BookDto fail = DataCommon.landscapesOfIdentity();
         fail.setName(fail.getName().toUpperCase());
 
         service.create(dto);
@@ -91,7 +91,7 @@ class BookServiceTest extends AbstractIntegrationTest {
 
     @Test
     void create_throwsException_whenNameIsNotIncludedInFullTitle() {
-        BookDto dto = DataCommon.getLandscapesOfIdentityBook();
+        BookDto dto = DataCommon.landscapesOfIdentity();
         dto.setFullTitle("Landscapes of Identiti: Estonian Art 1700-1945 The 3rd-floor permanent exhibition of the Kumu Art Museum");
 
         EntityValidationException ex = assertThrows(EntityValidationException.class, () -> service.create(dto));

@@ -168,7 +168,7 @@ class AuthorServiceTest extends AbstractIntegrationTest {
 
     @Test
     void delete_throwsException_whenBooksHaveThisAuthorLinked() {
-        BookDto bookInEnglish = getLandscapesOfIdentityBook();
+        BookDto bookInEnglish = landscapesOfIdentity();
         Book book = bookService.create(bookInEnglish);
         List<Author> authors = new ArrayList<>(book.getAuthors().stream().toList());
         authors.sort(Comparator.comparing(Author::getName));

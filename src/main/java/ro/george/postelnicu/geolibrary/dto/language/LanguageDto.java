@@ -1,5 +1,7 @@
 package ro.george.postelnicu.geolibrary.dto.language;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 
 public class LanguageDto {
@@ -7,7 +9,8 @@ public class LanguageDto {
     @NotBlank
     private String name;
 
-    public LanguageDto(String name) {
+    @JsonCreator
+    public LanguageDto(@JsonProperty("name") String name) {
         this.name = name;
     }
 

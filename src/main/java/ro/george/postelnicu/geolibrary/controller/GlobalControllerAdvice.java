@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import ro.george.postelnicu.geolibrary.dto.ErrorDto;
 import ro.george.postelnicu.geolibrary.exception.EntityAlreadyExistException;
 import ro.george.postelnicu.geolibrary.exception.EntityNotFoundException;
-import ro.george.postelnicu.geolibrary.dto.ErrorDto;
 
 import java.util.Collections;
 import java.util.UUID;
@@ -53,13 +53,15 @@ public class GlobalControllerAdvice extends ResponseEntityExceptionHandler {
                         BAD_REQUEST_ERROR_TYPE,
                         ex.getMessage(),
                         Collections.emptySet(),
-                        HttpStatus.resolve(HttpStatus.BAD_REQUEST.value())),
+                        HttpStatus.resolve(HttpStatus.NOT_FOUND.value())),
                 getProblemJsonHeader(),
-                HttpStatus.BAD_REQUEST,
+                HttpStatus.NOT_FOUND,
                 request);
     }
 
+    @ResponseBody
     @ExceptionHandler({Exception.class})
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     protected ResponseEntity<Object> handleUncaughtException(Exception ex, WebRequest request) {
         log.error("handleUncaughtException: ", ex);
         HttpStatus status = INTERNAL_SERVER_ERROR;

@@ -50,11 +50,11 @@ class AuthorServiceTest {
         List<Author> bulk = service.createBulk(dto);
 
         bulk.sort(Comparator.comparing(Author::getName));
-        assertEquals(bulk.size(), 2);
+        assertEquals(2, bulk.size());
         assertNotNull(bulk.get(0).getId());
         assertNotNull(bulk.get(1).getId());
-        assertEquals(bulk.get(0).getName(), BART);
-        assertEquals(bulk.get(1).getName(), LINDA);
+        assertEquals(BART, bulk.get(0).getName());
+        assertEquals(LINDA, bulk.get(1).getName());
     }
 
     @Test
@@ -67,7 +67,7 @@ class AuthorServiceTest {
         fail.setAuthors(Set.of(BART.toUpperCase()));
         EntityAlreadyExistException ex = assertThrows(EntityAlreadyExistException.class, () -> service.createBulk(fail));
 
-        assertEquals(ex.getMessage(), String.format(ENTITY_ALREADY_HAS_A, AUTHOR, BART));
+        assertEquals(String.format(ENTITY_ALREADY_HAS_A, AUTHOR, BART), ex.getMessage());
     }
 
     @Test
@@ -76,8 +76,8 @@ class AuthorServiceTest {
         Author author = service.create(dto);
 
         assertNotNull(author.getId());
-        assertEquals(author.getName(), LINDA);
-        assertEquals(author.getBooks().size(), 0);
+        assertEquals(LINDA, author.getName());
+        assertEquals(0, author.getBooks().size());
     }
 
     @Test
@@ -88,7 +88,7 @@ class AuthorServiceTest {
         AuthorDto fail = new AuthorDto(LINDA.toUpperCase());
         EntityAlreadyExistException ex = assertThrows(EntityAlreadyExistException.class, () -> service.create(fail));
 
-        assertEquals(ex.getMessage(), String.format(ENTITY_ALREADY_HAS_A, AUTHOR, LINDA));
+        assertEquals(String.format(ENTITY_ALREADY_HAS_A, AUTHOR, LINDA), ex.getMessage());
     }
 
     @Test
@@ -97,8 +97,8 @@ class AuthorServiceTest {
         Author author = service.createIfNotExisting(dto);
 
         assertNotNull(author.getId());
-        assertEquals(author.getName(), LINDA);
-        assertEquals(author.getBooks().size(), 0);
+        assertEquals(LINDA, author.getName());
+        assertEquals(0, author.getBooks().size());
     }
 
     @Test
@@ -132,9 +132,10 @@ class AuthorServiceTest {
 
     @Test
     void update_isSuccessful() {
-        Author english = service.create(new AuthorDto(LINDA.toUpperCase()));
+        Author linda = service.create(new AuthorDto(LINDA.toUpperCase()));
 
-        service.update(english.getId(), new AuthorDto(LINDA.toLowerCase()));
+        Author update = service.update(linda.getId(), new AuthorDto(LINDA + " III"));
+        assertEquals(LINDA + " III", update.getName());
     }
 
     @Test
@@ -147,9 +148,9 @@ class AuthorServiceTest {
     @Test
     void update_throwsException_whenAuthorExists() {
         service.create(new AuthorDto(LINDA));
-        Author french = service.create(new AuthorDto(BART));
+        Author bart = service.create(new AuthorDto(BART));
         EntityAlreadyExistException ex = assertThrows(EntityAlreadyExistException.class,
-                () -> service.update(french.getId(), new AuthorDto(LINDA)));
+                () -> service.update(bart.getId(), new AuthorDto(LINDA)));
 
         assertEquals(String.format(ENTITY_ALREADY_HAS_A, AUTHOR, LINDA), ex.getMessage());
     }

@@ -49,11 +49,11 @@ class KeywordServiceTest {
         List<Keyword> bulk = service.createBulk(dto);
 
         bulk.sort(Comparator.comparing(Keyword::getName));
-        assertEquals(bulk.size(), 2);
+        assertEquals(2, bulk.size());
         assertNotNull(bulk.get(0).getId());
         assertNotNull(bulk.get(1).getId());
-        assertEquals(bulk.get(0).getName(), ARCHITECTURE);
-        assertEquals(bulk.get(1).getName(), ART);
+        assertEquals(ARCHITECTURE, bulk.get(0).getName());
+        assertEquals(ART, bulk.get(1).getName());
     }
 
     @Test
@@ -66,7 +66,7 @@ class KeywordServiceTest {
         fail.setKeywords(Set.of(ARCHITECTURE.toUpperCase()));
         EntityAlreadyExistException ex = assertThrows(EntityAlreadyExistException.class, () -> service.createBulk(fail));
 
-        assertEquals(ex.getMessage(), String.format(ENTITY_ALREADY_HAS_A, KEYWORD, ARCHITECTURE));
+        assertEquals(String.format(ENTITY_ALREADY_HAS_A, KEYWORD, ARCHITECTURE), ex.getMessage());
     }
 
     @Test
@@ -75,8 +75,8 @@ class KeywordServiceTest {
         Keyword keyword = service.create(dto);
 
         assertNotNull(keyword.getId());
-        assertEquals(keyword.getName(), ART);
-        assertEquals(keyword.getBooks().size(), 0);
+        assertEquals(ART, keyword.getName());
+        assertEquals(0, keyword.getBooks().size());
     }
 
     @Test
@@ -96,8 +96,8 @@ class KeywordServiceTest {
         Keyword keyword = service.createIfNotExisting(dto);
 
         assertNotNull(keyword.getId());
-        assertEquals(keyword.getName(), ART);
-        assertEquals(keyword.getBooks().size(), 0);
+        assertEquals(ART, keyword.getName());
+        assertEquals(0, keyword.getBooks().size());
     }
 
     @Test
@@ -115,8 +115,8 @@ class KeywordServiceTest {
     @Transactional
     void read_isSuccessful() {
         Keyword keyword = service.create(new KeywordDto(ARCHITECTURE));
-
         Keyword existing = service.read(keyword.getId());
+
         assertEquals(keyword.getId(), existing.getId());
         assertEquals(keyword.getName(), existing.getName());
         assertEquals(keyword.getBooks(), existing.getBooks());
@@ -126,21 +126,22 @@ class KeywordServiceTest {
     void read_throwsException_whenIdDoesntExist() {
         EntityNotFoundException ex = assertThrows(EntityNotFoundException.class, () -> service.read(ID_NOT_FOUND));
 
-        assertEquals(ex.getMessage(), String.format(CANNOT_FIND_ENTITY_ID, KEYWORD, ID_NOT_FOUND));
+        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, KEYWORD, ID_NOT_FOUND), ex.getMessage());
     }
 
     @Test
     void update_isSuccessful() {
-        Keyword english = service.create(new KeywordDto(ART.toUpperCase()));
+        Keyword art = service.create(new KeywordDto(ART.toUpperCase()));
 
-        service.update(english.getId(), new KeywordDto(ART.toLowerCase()));
+        Keyword update = service.update(art.getId(), new KeywordDto(ART + "s"));
+        assertEquals(ART + "s", update.getName());
     }
 
     @Test
     void update_throwsException_whenIdDoesntExist() {
         EntityNotFoundException ex = assertThrows(EntityNotFoundException.class, () -> service.update(ID_NOT_FOUND, new KeywordDto(ARCHITECTURE)));
 
-        assertEquals(ex.getMessage(), String.format(CANNOT_FIND_ENTITY_ID, KEYWORD, ID_NOT_FOUND));
+        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, KEYWORD, ID_NOT_FOUND), ex.getMessage());
     }
 
     @Test
@@ -150,7 +151,7 @@ class KeywordServiceTest {
         EntityAlreadyExistException ex = assertThrows(EntityAlreadyExistException.class,
                 () -> service.update(french.getId(), new KeywordDto(ART)));
 
-        assertEquals(ex.getMessage(), String.format(ENTITY_ALREADY_HAS_A, KEYWORD, ART));
+        assertEquals(String.format(ENTITY_ALREADY_HAS_A, KEYWORD, ART), ex.getMessage());
     }
 
     @Test
@@ -161,14 +162,14 @@ class KeywordServiceTest {
 
         EntityNotFoundException ex = assertThrows(EntityNotFoundException.class, () -> service.read(keyword.getId()));
 
-        assertEquals(ex.getMessage(), String.format(CANNOT_FIND_ENTITY_ID, KEYWORD, keyword.getId()));
+        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, KEYWORD, keyword.getId()), ex.getMessage());
     }
 
     @Test
     void delete_throwsException_whenIdDoesntExist() {
         EntityNotFoundException ex = assertThrows(EntityNotFoundException.class, () -> service.delete(ID_NOT_FOUND));
 
-        assertEquals(ex.getMessage(), String.format(CANNOT_FIND_ENTITY_ID, KEYWORD, ID_NOT_FOUND));
+        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, KEYWORD, ID_NOT_FOUND), ex.getMessage());
     }
 
     @Test
@@ -180,6 +181,6 @@ class KeywordServiceTest {
         assertEquals(bookInEnglish.getKeywords().size(), keywords.size());
         EntityAlreadyLinkedException ex = assertThrows(EntityAlreadyLinkedException.class, () -> service.delete(keywords.get(0).getId()));
 
-        assertEquals(ex.getMessage(), String.format(ENTITY_ALREADY_HAS_A_LINK, KEYWORD, ART));
+        assertEquals(String.format(ENTITY_ALREADY_HAS_A_LINK, KEYWORD, ART), ex.getMessage());
     }
 }

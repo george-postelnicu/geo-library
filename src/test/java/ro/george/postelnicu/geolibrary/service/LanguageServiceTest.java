@@ -49,11 +49,11 @@ class LanguageServiceTest {
         List<Language> bulk = service.createBulk(dto);
 
         bulk.sort(Comparator.comparing(Language::getName));
-        assertEquals(bulk.size(), 2);
+        assertEquals(2, bulk.size());
         assertNotNull(bulk.get(0).getId());
         assertNotNull(bulk.get(1).getId());
-        assertEquals(bulk.get(0).getName(), ENGLISH);
-        assertEquals(bulk.get(1).getName(), FRENCH);
+        assertEquals(ENGLISH, bulk.get(0).getName());
+        assertEquals(FRENCH, bulk.get(1).getName());
     }
 
     @Test
@@ -66,7 +66,7 @@ class LanguageServiceTest {
         fail.setLanguages(Set.of(FRENCH.toUpperCase()));
         EntityAlreadyExistException ex = assertThrows(EntityAlreadyExistException.class, () -> service.createBulk(fail));
 
-        assertEquals(ex.getMessage(), String.format(ENTITY_ALREADY_HAS_A, LANGUAGE, FRENCH));
+        assertEquals(String.format(ENTITY_ALREADY_HAS_A, LANGUAGE, FRENCH), ex.getMessage());
     }
 
     @Test
@@ -75,8 +75,8 @@ class LanguageServiceTest {
         Language language = service.create(dto);
 
         assertNotNull(language.getId());
-        assertEquals(language.getName(), ENGLISH);
-        assertEquals(language.getBooks().size(), 0);
+        assertEquals(ENGLISH, language.getName());
+        assertEquals(0, language.getBooks().size());
     }
 
     @Test
@@ -87,7 +87,7 @@ class LanguageServiceTest {
         LanguageDto fail = new LanguageDto(ENGLISH.toUpperCase());
         EntityAlreadyExistException ex = assertThrows(EntityAlreadyExistException.class, () -> service.create(fail));
 
-        assertEquals(ex.getMessage(), String.format(ENTITY_ALREADY_HAS_A, LANGUAGE, ENGLISH));
+        assertEquals(String.format(ENTITY_ALREADY_HAS_A, LANGUAGE, ENGLISH), ex.getMessage());
     }
 
     @Test
@@ -96,8 +96,8 @@ class LanguageServiceTest {
         Language language = service.createIfNotExisting(dto);
 
         assertNotNull(language.getId());
-        assertEquals(language.getName(), ENGLISH);
-        assertEquals(language.getBooks().size(), 0);
+        assertEquals(ENGLISH, language.getName());
+        assertEquals(0, language.getBooks().size());
     }
 
     @Test
@@ -126,21 +126,22 @@ class LanguageServiceTest {
     void read_throwsException_whenIdDoesntExist() {
         EntityNotFoundException ex = assertThrows(EntityNotFoundException.class, () -> service.read(ID_NOT_FOUND));
 
-        assertEquals(ex.getMessage(), String.format(CANNOT_FIND_ENTITY_ID, LANGUAGE, ID_NOT_FOUND));
+        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, LANGUAGE, ID_NOT_FOUND), ex.getMessage());
     }
 
     @Test
     void update_isSuccessful() {
         Language english = service.create(new LanguageDto(ENGLISH.toUpperCase()));
 
-        service.update(english.getId(), new LanguageDto(ENGLISH.toLowerCase()));
+        Language update = service.update(english.getId(), new LanguageDto(ENGLISH + "s"));
+        assertEquals(ENGLISH + "s", update.getName());
     }
 
     @Test
     void update_throwsException_whenIdDoesntExist() {
         EntityNotFoundException ex = assertThrows(EntityNotFoundException.class, () -> service.update(ID_NOT_FOUND, new LanguageDto(FRENCH)));
 
-        assertEquals(ex.getMessage(), String.format(CANNOT_FIND_ENTITY_ID, LANGUAGE, ID_NOT_FOUND));
+        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, LANGUAGE, ID_NOT_FOUND), ex.getMessage());
     }
 
     @Test
@@ -150,7 +151,7 @@ class LanguageServiceTest {
         EntityAlreadyExistException ex = assertThrows(EntityAlreadyExistException.class,
                 () -> service.update(french.getId(), new LanguageDto(ENGLISH)));
 
-        assertEquals(ex.getMessage(), String.format(ENTITY_ALREADY_HAS_A, LANGUAGE, ENGLISH));
+        assertEquals(String.format(ENTITY_ALREADY_HAS_A, LANGUAGE, ENGLISH), ex.getMessage());
     }
 
     @Test
@@ -161,14 +162,14 @@ class LanguageServiceTest {
 
         EntityNotFoundException ex = assertThrows(EntityNotFoundException.class, () -> service.read(language.getId()));
 
-        assertEquals(ex.getMessage(), String.format(CANNOT_FIND_ENTITY_ID, LANGUAGE, language.getId()));
+        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, LANGUAGE, language.getId()), ex.getMessage());
     }
 
     @Test
     void delete_throwsException_whenIdDoesntExist() {
         EntityNotFoundException ex = assertThrows(EntityNotFoundException.class, () -> service.delete(ID_NOT_FOUND));
 
-        assertEquals(ex.getMessage(), String.format(CANNOT_FIND_ENTITY_ID, LANGUAGE, ID_NOT_FOUND));
+        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, LANGUAGE, ID_NOT_FOUND), ex.getMessage());
     }
 
     @Test
@@ -180,6 +181,6 @@ class LanguageServiceTest {
         assertEquals(1, languages.size());
         EntityAlreadyLinkedException ex = assertThrows(EntityAlreadyLinkedException.class, () -> service.delete(languages.get(0).getId()));
 
-        assertEquals(ex.getMessage(), String.format(ENTITY_ALREADY_HAS_A_LINK, LANGUAGE, ENGLISH));
+        assertEquals(String.format(ENTITY_ALREADY_HAS_A_LINK, LANGUAGE, ENGLISH), ex.getMessage());
     }
 }

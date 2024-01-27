@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ro.george.postelnicu.geolibrary.dto.language.LanguageDto;
 import ro.george.postelnicu.geolibrary.dto.language.LanguageResponseDto;
@@ -18,9 +19,13 @@ import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.util.UriComponentsBuilder.fromPath;
+import static ro.george.postelnicu.geolibrary.controller.LanguageController.LANGUAGE_API_BASE;
 
 @RestController
+@RequestMapping(LANGUAGE_API_BASE)
+@Validated
 public class LanguageController {
+    public static final String LANGUAGE_API_BASE = "/languages";
     private final LanguageService service;
 
     @Autowired
@@ -28,7 +33,7 @@ public class LanguageController {
         this.service = service;
     }
 
-    @PostMapping(value = "/languages-bulk",
+    @PostMapping(value = "/bulk",
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<LanguagesResponseDto> createBulk(@Valid @RequestBody LanguagesDto languagesDto) {
@@ -39,19 +44,18 @@ public class LanguageController {
         return ResponseEntity.ok().body(LanguagesResponseDto.of(responseDtos));
     }
 
-    @PostMapping(value = "/languages",
-            produces = APPLICATION_JSON_VALUE,
+    @PostMapping(produces = APPLICATION_JSON_VALUE,
             consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<LanguageResponseDto> create(@Valid @RequestBody LanguageDto languageDto) {
         Language language = service.create(languageDto);
-        URI location = fromPath("/languages").pathSegment("{id}")
+        URI location = fromPath(LANGUAGE_API_BASE).pathSegment("{id}")
                 .buildAndExpand(language.getId()).toUri();
         LanguageResponseDto responseDto = LibraryMapper.INSTANCE.toLanguageResponseDto(language);
 
         return ResponseEntity.created(location).body(responseDto);
     }
 
-    @GetMapping(value = "/languages/{id}", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{id}", produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<LanguageResponseDto> read(@PathVariable Long id) {
         Language language = service.read(id);
         LanguageResponseDto responseDto = LibraryMapper.INSTANCE.toLanguageResponseDto(language);
@@ -59,7 +63,7 @@ public class LanguageController {
         return ResponseEntity.ok().body(responseDto);
     }
 
-    @PutMapping(value = "/languages/{id}",
+    @PutMapping(value = "/{id}",
             produces = APPLICATION_JSON_VALUE,
             consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<LanguageResponseDto> update(@PathVariable Long id,
@@ -69,7 +73,7 @@ public class LanguageController {
         return ResponseEntity.ok().body(responseDto);
     }
 
-    @DeleteMapping(value = "/languages/{id}", produces = APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/{id}", produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
 

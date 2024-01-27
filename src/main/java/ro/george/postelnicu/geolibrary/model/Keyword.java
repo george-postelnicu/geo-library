@@ -14,7 +14,8 @@ public class Keyword {
     @Id
     @GeneratedValue
     private Long id;
-    @NaturalId
+    @NaturalId(mutable = true)
+    @Column(unique = true)
     private String name;
     @ManyToMany(mappedBy = "keywords")
     private Set<Book> books = new HashSet<>();

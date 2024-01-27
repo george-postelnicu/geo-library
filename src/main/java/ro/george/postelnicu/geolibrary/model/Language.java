@@ -14,7 +14,8 @@ public class Language {
     @GeneratedValue
     private Long id;
 
-    @NaturalId
+    @NaturalId(mutable = true)
+    @Column(unique = true)
     private String name;
 
     @ManyToMany(mappedBy = "languages")

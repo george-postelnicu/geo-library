@@ -90,7 +90,7 @@ class BookServiceTest {
 
         EntityAlreadyExistException ex = assertThrows(EntityAlreadyExistException.class, () -> service.create(fail));
 
-        assertEquals(ex.getMessage(), String.format(ENTITY_ALREADY_HAS_A, BOOK, LANDSCAPES_OF_IDENTITY.toUpperCase()));
+        assertEquals(String.format(ENTITY_ALREADY_HAS_A, BOOK, LANDSCAPES_OF_IDENTITY.toUpperCase()), ex.getMessage());
     }
 
     @Test
@@ -100,7 +100,7 @@ class BookServiceTest {
 
         EntityValidationException ex = assertThrows(EntityValidationException.class, () -> service.create(dto));
 
-        assertEquals(ex.getMessage(), String.format(ENTITY_VALIDATION_FAILURE, BOOK, "Name is not included in full title!"));
+        assertEquals(String.format(ENTITY_VALIDATION_FAILURE, BOOK, "Name is not included in full title!"), ex.getMessage());
     }
 
     public static BookDto getLandscapesOfIdentityBook() {

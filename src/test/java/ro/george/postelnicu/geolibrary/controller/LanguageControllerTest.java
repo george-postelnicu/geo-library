@@ -37,10 +37,14 @@ import static ro.george.postelnicu.geolibrary.model.EntityName.LANGUAGE;
 })
 class LanguageControllerTest {
 
-
+    public static final String BULK = "/bulk";
+    public static final String ENGLISH = "English";
+    public static final String FRENCH = "French";
+    public static final String UPDATED_LANGUAGE = "German";
     private final LanguageController languageController;
     private final LanguageService languageService;
     private final ObjectMapper objectMapper;
+    private final Long NON_EXISTING_ID = 0L;
     private MockMvc mockMvc;
 
     @Autowired
@@ -59,11 +63,11 @@ class LanguageControllerTest {
     @Test
     void createBulk_shouldReturn200_whenLanguagesDoNotExist() throws Exception {
         LanguagesDto languagesDto = new LanguagesDto();
-        languagesDto.setLanguages(Set.of("English", "French"));
+        languagesDto.setLanguages(Set.of(ENGLISH, FRENCH));
 
         String responseString = this.mockMvc
                 .perform(
-                        post(LANGUAGE_API_BASE + "/bulk")
+                        post(LANGUAGE_API_BASE + BULK)
                                 .content(objectMapper.writeValueAsString(languagesDto))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -80,12 +84,12 @@ class LanguageControllerTest {
     @Test
     void createBulk_shouldThrowException_whenAnyOfTheLanguagesAlreadyExists() throws Exception {
         LanguagesDto languagesDto = new LanguagesDto();
-        languagesDto.setLanguages(Set.of("English", "French"));
+        languagesDto.setLanguages(Set.of(ENGLISH, FRENCH));
         languageService.createBulk(languagesDto);
 
         String responseString = this.mockMvc
                 .perform(
-                        post(LANGUAGE_API_BASE + "/bulk")
+                        post(LANGUAGE_API_BASE + BULK)
                                 .content(objectMapper.writeValueAsString(languagesDto))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
@@ -97,12 +101,12 @@ class LanguageControllerTest {
         ErrorDto errorDto = objectMapper.readValue(responseString, ErrorDto.class);
 
         assertEquals(BAD_REQUEST_ERROR_TYPE, errorDto.getTitle());
-        assertEquals(String.format(ENTITY_ALREADY_HAS_A, LANGUAGE, "English"), errorDto.getDetail());
+        assertEquals(String.format(ENTITY_ALREADY_HAS_A, LANGUAGE, ENGLISH), errorDto.getDetail());
     }
 
     @Test
     void create_shouldReturn201_whenLanguageDoesNotExist() throws Exception {
-        LanguageDto createDto = new LanguageDto("English");
+        LanguageDto createDto = new LanguageDto(ENGLISH);
 
         String responseString = this.mockMvc
                 .perform(
@@ -123,7 +127,7 @@ class LanguageControllerTest {
 
     @Test
     void create_shouldThrowException_whenLanguageExists() throws Exception {
-        LanguageDto createDto = new LanguageDto("English");
+        LanguageDto createDto = new LanguageDto(ENGLISH);
         languageService.create(createDto);
 
         String responseString = this.mockMvc
@@ -144,7 +148,7 @@ class LanguageControllerTest {
 
     @Test
     void read_shouldReturn200_whenIdIsFound() throws Exception {
-        LanguageDto createDto = new LanguageDto("English");
+        LanguageDto createDto = new LanguageDto(ENGLISH);
         Language createdLanguage = languageService.create(createDto);
 
         String responseString = this.mockMvc
@@ -164,11 +168,9 @@ class LanguageControllerTest {
 
     @Test
     void read_shouldThrowException_whenIdIsNotFound() throws Exception {
-        Long nonExistingId = 100L;
-
         String responseString = this.mockMvc
                 .perform(
-                        get(LANGUAGE_API_BASE + "/" + nonExistingId)
+                        get(LANGUAGE_API_BASE + "/" + NON_EXISTING_ID)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -178,15 +180,14 @@ class LanguageControllerTest {
         ErrorDto errorDto = objectMapper.readValue(responseString, ErrorDto.class);
 
         assertEquals(BAD_REQUEST_ERROR_TYPE, errorDto.getTitle());
-        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, LANGUAGE, nonExistingId), errorDto.getDetail());
+        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, LANGUAGE, NON_EXISTING_ID), errorDto.getDetail());
     }
 
     @Test
     void update_shouldReturn200_whenLanguageIsUpdated() throws Exception {
-        LanguageDto createDto = new LanguageDto("English");
+        LanguageDto createDto = new LanguageDto(ENGLISH);
         Language createdLanguage = languageService.create(createDto);
-        String updatedName = "Updated Language";
-        LanguageDto updateDto = new LanguageDto(updatedName);
+        LanguageDto updateDto = new LanguageDto(UPDATED_LANGUAGE);
 
         String responseString = this.mockMvc
                 .perform(
@@ -201,21 +202,17 @@ class LanguageControllerTest {
         LanguageResponseDto updatedDto = objectMapper.readValue(responseString, LanguageResponseDto.class);
 
         assertEquals(createdLanguage.getId(), updatedDto.getId());
-        assertEquals(updatedName, updatedDto.getName());
+        assertEquals(UPDATED_LANGUAGE, updatedDto.getName());
     }
 
     @Test
     void update_shouldThrowException_whenIdIsNotFound() throws Exception {
-        Long nonExistingId = 100L;
-        LanguageDto createDto = new LanguageDto("English");
-        languageService.create(createDto);
-        String updatedName = "Updated Language";
-        LanguageDto updateDto = new LanguageDto(updatedName);
+        LanguageDto createDto = new LanguageDto(ENGLISH);
 
         String responseString = this.mockMvc
                 .perform(
-                        put(LANGUAGE_API_BASE + "/" + nonExistingId)
-                                .content(objectMapper.writeValueAsString(updateDto))
+                        put(LANGUAGE_API_BASE + "/" + NON_EXISTING_ID)
+                                .content(objectMapper.writeValueAsString(createDto))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -226,12 +223,12 @@ class LanguageControllerTest {
         ErrorDto errorDto = objectMapper.readValue(responseString, ErrorDto.class);
 
         assertEquals(BAD_REQUEST_ERROR_TYPE, errorDto.getTitle());
-        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, LANGUAGE, nonExistingId), errorDto.getDetail());
+        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, LANGUAGE, NON_EXISTING_ID), errorDto.getDetail());
     }
 
     @Test
     void delete_shouldReturn204_whenIdIsFound() throws Exception {
-        LanguageDto createDto = new LanguageDto("English");
+        LanguageDto createDto = new LanguageDto(ENGLISH);
         Language createdLanguage = languageService.create(createDto);
 
         this.mockMvc
@@ -243,11 +240,9 @@ class LanguageControllerTest {
 
     @Test
     void delete_shouldThrowException_whenIdIsNotFound() throws Exception {
-        Long nonExistingId = 100L;
-
         String responseString = this.mockMvc
                 .perform(
-                        delete(LANGUAGE_API_BASE + "/" + nonExistingId)
+                        delete(LANGUAGE_API_BASE + "/" + NON_EXISTING_ID)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -257,6 +252,6 @@ class LanguageControllerTest {
         ErrorDto errorDto = objectMapper.readValue(responseString, ErrorDto.class);
 
         assertEquals(BAD_REQUEST_ERROR_TYPE, errorDto.getTitle());
-        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, LANGUAGE, nonExistingId), errorDto.getDetail());
+        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, LANGUAGE, NON_EXISTING_ID), errorDto.getDetail());
     }
 }

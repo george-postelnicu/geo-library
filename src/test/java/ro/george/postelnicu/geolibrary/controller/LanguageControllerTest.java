@@ -180,7 +180,7 @@ class LanguageControllerTest extends AbstractIntegrationTest {
     void update_shouldReturn200_whenLanguageIsUpdated() throws Exception {
         LanguageDto createDto = new LanguageDto(ENGLISH);
         Language createdLanguage = service.create(createDto);
-        LanguageDto updateDto = new LanguageDto(UPDATED_LANGUAGE);
+        LanguageDto updateDto = new LanguageDto(ESTONIAN);
 
         String responseString = this.mockMvc
                 .perform(
@@ -195,7 +195,7 @@ class LanguageControllerTest extends AbstractIntegrationTest {
         LanguageResponseDto updatedDto = objectMapper.readValue(responseString, LanguageResponseDto.class);
 
         assertEquals(createdLanguage.getId(), updatedDto.getId());
-        assertEquals(UPDATED_LANGUAGE, updatedDto.getName());
+        assertEquals(ESTONIAN, updatedDto.getName());
     }
 
     @Test

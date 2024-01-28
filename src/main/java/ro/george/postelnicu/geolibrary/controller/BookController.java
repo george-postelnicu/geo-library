@@ -16,7 +16,7 @@ import ro.george.postelnicu.geolibrary.repository.BookRepository;
 import ro.george.postelnicu.geolibrary.service.BookSearchService;
 import ro.george.postelnicu.geolibrary.service.BookService;
 
-import java.util.List;
+import java.util.Set;
 
 import static ro.george.postelnicu.geolibrary.controller.ApiPrefix.BOOKS;
 
@@ -41,9 +41,9 @@ public class BookController {
             @RequestParam(name = "name", required = false) String name,
             @RequestParam(name = "full_title", required = false) String fullTitle,
             @RequestParam(name = "isbn", required = false) String isbn,
-            @RequestParam(name = "authors", required = false) List<String> authors,
-            @RequestParam(name = "keywords", required = false) List<String> keywords,
-            @RequestParam(name = "languages", required = false) List<String> languages,
+            @RequestParam(name = "authors", required = false) Set<String> authors,
+            @RequestParam(name = "keywords", required = false) Set<String> keywords,
+            @RequestParam(name = "languages", required = false) Set<String> languages,
             @RequestParam(name = "publisher", required = false) String publisher,
             @RequestParam(name = "cover_type", required = false) CoverType coverType,
             @RequestParam(name = "min_year", required = false) Integer minYear,

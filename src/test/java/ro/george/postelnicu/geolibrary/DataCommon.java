@@ -11,15 +11,15 @@ import static ro.george.postelnicu.geolibrary.model.StatusType.HAVE;
 public class DataCommon {
     public static final String ART = "Art";
     public static final String ARCHITECTURE = "Architecture";
-    public static final String UPDATED_KEYWORD = "Finance";
+    public static final String FINANCE = "Finance";
 
     public static final String ENGLISH = "English";
     public static final String FRENCH = "French";
-    public static final String UPDATED_LANGUAGE = "German";
+    public static final String ESTONIAN = "Estonian";
 
     public static final String LINDA = "Linda Kalijundi";
     public static final String BART = "Bart Pushaw";
-    public static final String UPDATED_AUTHOR = "Kadi Polli";
+    public static final String KADI = "Kadi Polli";
 
     public static final long ID_NOT_FOUND = 0L;
     public static final String ART_MUSEUM_OF_ESTONIA = "Art Museum of Estonia";
@@ -32,13 +32,14 @@ public class DataCommon {
     public static final String LANNOO = "Lannoo";
     public static final String ESTONIAN_MUSEUM_OF_ARCHITECTURE = "Estonian Museum of Architecture";
     public static final String NOT_FOUND = "NOT_FOUND";
+    public static final String KAJA = "Kaja Kahrik";
 
     public static BookDto landscapesOfIdentity() {
         BookDto dto = new BookDto(LANDSCAPES_OF_IDENTITY, "ISBN 978-9949-687-32-9", HAVE);
         dto.setFullTitle("Landscapes of Identity: Estonian Art 1700-1945 The 3rd-floor permanent exhibition of the Kumu Art Museum");
         dto.setDescription("Lorem Ipsum");
-        dto.setAuthors(Set.of("Linda Kalijundi", "Kadi Polli", "Bart Pushaw", "Kaja Kahrik"));
-        dto.setKeywords(Set.of("Kumu Art Museum", "Art", "Estonian Art"));
+        dto.setAuthors(Set.of(LINDA, KADI, BART, KAJA));
+        dto.setKeywords(estonianArtKeywords());
         dto.setLanguages(Set.of("English"));
         dto.setPublisher(ART_MUSEUM_OF_ESTONIA);
         dto.setCover(SOFTCOVER_WITH_DUST_JACKET);
@@ -48,12 +49,11 @@ public class DataCommon {
         return dto;
     }
 
-    public static BookDto anotherEnglishBook() {
-        BookDto dto = new BookDto(_20TH_CENTURY_ESTONIAN_ARCHITECTURE, "ISBN 978-9949-9078-6-1", HAVE);
-        dto.setLanguages(Set.of("English"));
-        dto.setAuthors(Set.of("Linda Kalijundi", "Kadi Polli", "Bart Pushaw", "Kaja Kahrik"));
-        dto.setKeywords(Set.of("Kumu Art Museum", "Art", "Estonian Art"));
-        dto.setPublisher(ART_MUSEUM_OF_ESTONIA);
+    public static BookDto anotherBookLikeLandscapes() {
+        BookDto dto = landscapesOfIdentity();
+        dto.setName(_20TH_CENTURY_ESTONIAN_ARCHITECTURE);
+        dto.setIsbn("ISBN 978-9949-9078-6-1");
+        dto.setBarcode("9789949907861");
         return dto;
     }
 
@@ -61,8 +61,8 @@ public class DataCommon {
         BookDto dto = new BookDto(CONFLICTS_AND_ADAPTATIONS, "ISBN 978-9949-687-44-2", HAVE);
         dto.setFullTitle("Conflicts and Adaptations. Estonian Art of the Soviet Era (1940-1991)");
         dto.setDescription("Lorem Ipsum");
-        dto.setAuthors(Set.of("Anu Allas", "Sirje Helme", "Liisa Kaljula"));
-        dto.setKeywords(Set.of("Kumu Art Museum", "Art", "Estonian Art"));
+        dto.setAuthors(Set.of("Anu Allas", "Sirje Helme", "Liisa Kaljula", KAJA));
+        dto.setKeywords(estonianArtKeywords());
         dto.setLanguages(Set.of("English"));
         dto.setCover(SOFTCOVER_WITH_DUST_JACKET);
         dto.setPublisher(ART_MUSEUM_OF_ESTONIA);
@@ -72,10 +72,14 @@ public class DataCommon {
         return dto;
     }
 
+    public static Set<String> estonianArtKeywords() {
+        return Set.of("Kumu Art Museum", ART, "Estonian Art");
+    }
+
 
     public static BookDto oneHundredStepsThrough20thCenturyEstonianArchitecture() {
         BookDto dto = new BookDto(_20TH_CENTURY_ESTONIAN_ARCHITECTURE, "ISBN 978-9949-9078-6-1", HAVE);
-        dto.setLanguages(Set.of("Estonian", "English"));
+        dto.setLanguages(bothLanguages());
         /*dto.setDescription("""
                 The 100 steps denote 100 keywords, which most characterise the period of 1870–1992.
                 These may be building types, or so much as fields (railway architecture, the municipal building,
@@ -89,8 +93,7 @@ public class DataCommon {
                  of cultural value so far are presented, as are structures that are already under state protection.
                 """);*/
         dto.setAuthors(Set.of("Lilian Hansar", "Jaak Huimerind", "Karen Jagodin", "Liina Jänes", "Mart Kalm",
-                "Epp Lankots", "Maris Mändel", "Triin Ojari", "Oliver Orro",
-                "Heiki Pärdi", "Anneli Randla", "Leele Välja", "Mait Väljas"));
+                "Epp Lankots", "Maris Mändel", "Triin Ojari", "Oliver Orro"));
         dto.setKeywords(Set.of("20th Century Architecture", "Architecture", "Estonian Architecture"));
         dto.setCover(SOFTCOVER_WITH_DUST_JACKET);
         dto.setPublisher(ESTONIAN_MUSEUM_OF_ARCHITECTURE);
@@ -98,6 +101,10 @@ public class DataCommon {
         dto.setPages(215);
         dto.setBarcode("9789949907861");
         return dto;
+    }
+
+    public static Set<String> bothLanguages() {
+        return Set.of(ESTONIAN, ENGLISH);
     }
 
     public static BookDto oneHundredFiftyHouses() {
@@ -125,7 +132,16 @@ public class DataCommon {
                 HOUSES_YOU_NEED_TO_VISIT_BEFORE_YOU_DIE, _20TH_CENTURY_ESTONIAN_ARCHITECTURE);
     }
 
-    public static Set<String> estonianArtBooks() {
+    public static Set<String> estonianBookNames() {
+        return Set.of(LANDSCAPES_OF_IDENTITY, CONFLICTS_AND_ADAPTATIONS,
+                _20TH_CENTURY_ESTONIAN_ARCHITECTURE);
+    }
+
+    public static Set<String> estonianArtBookNames() {
         return Set.of(CONFLICTS_AND_ADAPTATIONS, LANDSCAPES_OF_IDENTITY);
+    }
+
+    public static Set<String> housesYouNeedToVisit() {
+        return Set.of(HOUSES_YOU_NEED_TO_VISIT_BEFORE_YOU_DIE);
     }
 }

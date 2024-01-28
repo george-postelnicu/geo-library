@@ -125,8 +125,8 @@ class LanguageServiceTest extends AbstractIntegrationTest {
     void update_isSuccessful() {
         Language english = service.create(new LanguageDto(ENGLISH.toUpperCase()));
 
-        Language update = service.update(english.getId(), new LanguageDto(UPDATED_LANGUAGE));
-        assertEquals(UPDATED_LANGUAGE, update.getName());
+        Language update = service.update(english.getId(), new LanguageDto(ESTONIAN));
+        assertEquals(ESTONIAN, update.getName());
     }
 
     @Test

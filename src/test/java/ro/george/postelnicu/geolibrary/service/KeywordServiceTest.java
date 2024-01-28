@@ -125,8 +125,8 @@ class KeywordServiceTest extends AbstractIntegrationTest {
     void update_isSuccessful() {
         Keyword art = service.create(new KeywordDto(ART.toUpperCase()));
 
-        Keyword update = service.update(art.getId(), new KeywordDto(UPDATED_KEYWORD));
-        assertEquals(UPDATED_KEYWORD, update.getName());
+        Keyword update = service.update(art.getId(), new KeywordDto(FINANCE));
+        assertEquals(FINANCE, update.getName());
     }
 
     @Test

@@ -174,7 +174,7 @@ class AuthorControllerTest extends AbstractIntegrationTest {
         AuthorDto authorDto = new AuthorDto(LINDA);
         Author author = service.create(authorDto);
 
-        authorDto.setName(UPDATED_AUTHOR);
+        authorDto.setName(KADI);
 
         String responseString = this.mockMvc.perform(
                         put(STR."\{AUTHORS}/\{author.getId()}")
@@ -188,7 +188,7 @@ class AuthorControllerTest extends AbstractIntegrationTest {
         AuthorResponseDto responseDto = objectMapper.readValue(responseString, AuthorResponseDto.class);
 
         assertNotNull(responseDto.getName());
-        assertEquals(UPDATED_AUTHOR, responseDto.getName());
+        assertEquals(KADI, responseDto.getName());
     }
 
     @Test

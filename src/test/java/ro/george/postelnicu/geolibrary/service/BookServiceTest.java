@@ -58,7 +58,7 @@ class BookServiceTest extends AbstractIntegrationTest {
     @Test
     void create_isSuccessful_whenTwoBooksReturnSameIdsForExternalEntities() {
         Book book1 = service.create(DataCommon.landscapesOfIdentity());
-        Book book2 = service.create(DataCommon.anotherEnglishBook());
+        Book book2 = service.create(DataCommon.anotherBookLikeLandscapes());
 
         List<Language> book1Languages = book1.getLanguages().stream().toList();
         List<Language> book2Languages = book2.getLanguages().stream().toList();

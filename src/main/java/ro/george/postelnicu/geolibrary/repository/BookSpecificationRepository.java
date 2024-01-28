@@ -1,6 +1,9 @@
 package ro.george.postelnicu.geolibrary.repository;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +14,7 @@ import org.springframework.stereotype.Repository;
 import ro.george.postelnicu.geolibrary.model.Book;
 import ro.george.postelnicu.geolibrary.model.BookSearchCriteria;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -34,9 +36,9 @@ public class BookSpecificationRepository {
         specifications.add(buildPublisherAndCover(searchCriteria));
         specifications.add(buildPublishYear(searchCriteria));
         specifications.add(buildPages(searchCriteria));
-//        specifications.add(buildAuthors(searchCriteria));
-//        specifications.add(buildKeywords(searchCriteria));
-//        specifications.add(buildLanguages(searchCriteria));
+        specifications.add(buildAuthors(searchCriteria));
+        specifications.add(buildKeywords(searchCriteria));
+        specifications.add(buildLanguages(searchCriteria));
 
         return repository.findAll(allOf(specifications), pageRequest);
     }
@@ -90,30 +92,44 @@ public class BookSpecificationRepository {
     }
 
     private static Specification<Book> buildAuthors(BookSearchCriteria searchCriteria) {
-        if (searchCriteria.authors().isEmpty()) {
+        if (Objects.isNull(searchCriteria.authors()) || searchCriteria.authors().isEmpty()) {
             return ignore();
         }
 
-        return ((root, query, cb) -> root.get("authors").get("name").in(searchCriteria.authors()));
+        return compareCollections("authors", searchCriteria.authors());
     }
 
     private static Specification<Book> buildKeywords(BookSearchCriteria searchCriteria) {
-        if (searchCriteria.keywords().isEmpty()) {
+        if (Objects.isNull(searchCriteria.keywords()) || searchCriteria.keywords().isEmpty()) {
             return ignore();
         }
 
-        return ((root, query, cb) -> root.get("keywords").get("name").in(searchCriteria.keywords()));
+        return compareCollections("keywords", searchCriteria.keywords());
     }
 
     private static Specification<Book> buildLanguages(BookSearchCriteria searchCriteria) {
-        if (searchCriteria.languages().isEmpty()) {
+        if (Objects.isNull(searchCriteria.languages()) || searchCriteria.languages().isEmpty()) {
             return ignore();
         }
 
-        return ((root, query, cb) -> root.get("languages").get("name").in(searchCriteria.languages()));
+        return compareCollections("languages", searchCriteria.languages());
+    }
+
+    private static Specification<Book> compareCollections(String columnName, Set<String> names) {
+        return (Root<Book> root, CriteriaQuery<?> _, CriteriaBuilder cb) -> {
+
+            // Create a separate predicate for each author
+            Set<Predicate> predicates = new HashSet<>();
+            for (String authorName : names) {
+                predicates.add(cb.equal(root.join(columnName).get("name"), authorName));
+            }
+
+            // Combine all predicates using 'AND'
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
     }
 
     private static <Book> Specification<Book> ignore() {
-        return (root, query, cb) -> cb.conjunction();
+        return (_, _, cb) -> cb.conjunction();
     }
 }

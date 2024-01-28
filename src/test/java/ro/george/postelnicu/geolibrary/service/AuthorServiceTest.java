@@ -127,8 +127,8 @@ class AuthorServiceTest extends AbstractIntegrationTest {
     void update_isSuccessful() {
         Author linda = service.create(new AuthorDto(LINDA.toUpperCase()));
 
-        Author update = service.update(linda.getId(), new AuthorDto(UPDATED_AUTHOR));
-        assertEquals(UPDATED_AUTHOR, update.getName());
+        Author update = service.update(linda.getId(), new AuthorDto(KADI));
+        assertEquals(KADI, update.getName());
     }
 
     @Test

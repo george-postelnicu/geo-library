@@ -174,7 +174,7 @@ class KeywordControllerTest extends AbstractIntegrationTest {
         KeywordDto keywordDto = new KeywordDto(ART);
         Keyword keyword = service.create(keywordDto);
 
-        keywordDto.setName(UPDATED_KEYWORD);
+        keywordDto.setName(FINANCE);
 
         String responseString = this.mockMvc.perform(
                         put(STR."\{KEYWORDS}/\{keyword.getId()}")
@@ -188,7 +188,7 @@ class KeywordControllerTest extends AbstractIntegrationTest {
         KeywordResponseDto responseDto = objectMapper.readValue(responseString, KeywordResponseDto.class);
 
         assertNotNull(responseDto.getName());
-        assertEquals(UPDATED_KEYWORD, responseDto.getName());
+        assertEquals(FINANCE, responseDto.getName());
     }
 
     @Test

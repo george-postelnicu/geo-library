@@ -40,6 +40,7 @@ public class BookController {
             @RequestParam(name = "size", defaultValue = "20") Integer size,
             @RequestParam(name = "name", required = false) String name,
             @RequestParam(name = "full_title", required = false) String fullTitle,
+            @RequestParam(name = "description", required = false) String description,
             @RequestParam(name = "isbn", required = false) String isbn,
             @RequestParam(name = "authors", required = false) Set<String> authors,
             @RequestParam(name = "keywords", required = false) Set<String> keywords,
@@ -51,7 +52,8 @@ public class BookController {
             @RequestParam(name = "min_pages", required = false) Integer minPages,
             @RequestParam(name = "max_pages", required = false) Integer maxPages
     ) {
-        BookSearchCriteria searchCriteria = new BookSearchCriteria(name, fullTitle, isbn, authors, keywords, languages,
+        BookSearchCriteria searchCriteria = new BookSearchCriteria(name, fullTitle, description,
+                isbn, authors, keywords, languages,
                 publisher, coverType, minYear, maxYear, minPages, maxPages);
         Page<BookResponseDto> bookResponseDtos = searchService.search(searchCriteria,
                         PageRequest.of(page, size))

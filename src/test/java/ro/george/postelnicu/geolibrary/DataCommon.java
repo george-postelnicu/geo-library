@@ -33,11 +33,13 @@ public class DataCommon {
     public static final String ESTONIAN_MUSEUM_OF_ARCHITECTURE = "Estonian Museum of Architecture";
     public static final String NOT_FOUND = "NOT_FOUND";
     public static final String KAJA = "Kaja Kahrik";
+    public static final String CONFLICTS_AND_ADAPTATIONS_FULL_TITLE = "Conflicts and Adaptations. Estonian Art of the Soviet Era (1940-1991)";
+    public static final String LOREM_IPSUM = "Lorem Ipsum";
 
     public static BookDto landscapesOfIdentity() {
         BookDto dto = new BookDto(LANDSCAPES_OF_IDENTITY, "ISBN 978-9949-687-32-9", HAVE);
         dto.setFullTitle("Landscapes of Identity: Estonian Art 1700-1945 The 3rd-floor permanent exhibition of the Kumu Art Museum");
-        dto.setDescription("Lorem Ipsum");
+        dto.setDescription(LOREM_IPSUM);
         dto.setAuthors(Set.of(LINDA, KADI, BART, KAJA));
         dto.setKeywords(estonianArtKeywords());
         dto.setLanguages(Set.of("English"));
@@ -54,13 +56,14 @@ public class DataCommon {
         dto.setName(_20TH_CENTURY_ESTONIAN_ARCHITECTURE);
         dto.setIsbn("ISBN 978-9949-9078-6-1");
         dto.setBarcode("9789949907861");
+        dto.setFullTitle(_20TH_CENTURY_ESTONIAN_ARCHITECTURE);
         return dto;
     }
 
     public static BookDto conflictsAndAdaptations() {
         BookDto dto = new BookDto(CONFLICTS_AND_ADAPTATIONS, "ISBN 978-9949-687-44-2", HAVE);
-        dto.setFullTitle("Conflicts and Adaptations. Estonian Art of the Soviet Era (1940-1991)");
-        dto.setDescription("Lorem Ipsum");
+        dto.setFullTitle(CONFLICTS_AND_ADAPTATIONS_FULL_TITLE);
+        dto.setDescription(LOREM_IPSUM);
         dto.setAuthors(Set.of("Anu Allas", "Sirje Helme", "Liisa Kaljula", KAJA));
         dto.setKeywords(estonianArtKeywords());
         dto.setLanguages(Set.of("English"));
@@ -80,18 +83,6 @@ public class DataCommon {
     public static BookDto oneHundredStepsThrough20thCenturyEstonianArchitecture() {
         BookDto dto = new BookDto(_20TH_CENTURY_ESTONIAN_ARCHITECTURE, "ISBN 978-9949-9078-6-1", HAVE);
         dto.setLanguages(bothLanguages());
-        /*dto.setDescription("""
-                The 100 steps denote 100 keywords, which most characterise the period of 1870–1992.
-                These may be building types, or so much as fields (railway architecture, the municipal building,
-                 the rural schoolhouse, the private dwelling), specific structures
-                 (the Riigikogu building, TV- and radio buildings, the Munamäe viewing platform, the Seaplane Hangars, etc.),
-                 types of settlements (the micro-district, the rural settlement, the hamlet, the summer-home cooperative, etc.),
-                 architects (Karl Burman, Edgar Velbri, Raine Karp, Toomas Rein, etc.), building materials (silica brick,
-                 reinforced concrete, large block, etc.), or styles (historicism, functionalism, art-nouveau, Stalinism, etc.).
-                 This allows all more significant architectural phenomena in 20th-century Estonian architecture to be covered:
-                 both crowning achievements and everyday architecture. Both less-known buildings and those not protected as items
-                 of cultural value so far are presented, as are structures that are already under state protection.
-                """);*/
         dto.setAuthors(Set.of("Lilian Hansar", "Jaak Huimerind", "Karen Jagodin", "Liina Jänes", "Mart Kalm",
                 "Epp Lankots", "Maris Mändel", "Triin Ojari", "Oliver Orro"));
         dto.setKeywords(Set.of("20th Century Architecture", "Architecture", "Estonian Architecture"));
@@ -110,13 +101,6 @@ public class DataCommon {
     public static BookDto oneHundredFiftyHouses() {
         BookDto dto = new BookDto(HOUSES_YOU_NEED_TO_VISIT_BEFORE_YOU_DIE, "ISBN 978-940-14620-4-4", HAVE);
         dto.setLanguages(Set.of("English"));
-        /*dto.setDescription("""
-                Architectural travel is on the rise. With this book you not only have a fantastic reference book of the best 150 private houses, but also a bucket list to plan your next city trip or trip. All houses guarantee a unique experience through the aesthetics of the house, the architectural masterpiece or the sophisticated design.
-                                
-                This book is the ultimate architecture travel wish list. At each house, the authors provide the reader with a clear identity kit regarding the year of construction, architect and all the information you want to know at a glance.
-                                
-                150 Houses You Need to Visit Before You Die is the ultimate 'architecture bucket list'.
-                """);*/
         dto.setAuthors(Set.of("Thijs Demeulemeester", "Jacinthe Gigou"));
         dto.setKeywords(Set.of("Architecture", "World Architecture", "20th Century Architecture"));
         dto.setCover(HARDCOVER);

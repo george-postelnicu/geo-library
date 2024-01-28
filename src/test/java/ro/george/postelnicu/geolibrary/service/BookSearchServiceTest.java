@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static ro.george.postelnicu.geolibrary.DataCommon.*;
 import static ro.george.postelnicu.geolibrary.model.CoverType.*;
+import static ro.george.postelnicu.geolibrary.util.StringUtil.SPACE;
+import static ro.george.postelnicu.geolibrary.util.StringUtil.WILDCARD;
 
 
 class BookSearchServiceTest extends AbstractIntegrationTest {
@@ -120,50 +122,122 @@ class BookSearchServiceTest extends AbstractIntegrationTest {
         noResultsFound(notFound);
     }
 
+    @Test
+    void search_shouldFindBooks_whenFilteringByName() {
+        BookSearchCriteria landscapes = getBSC_byName(LANDSCAPES_OF_IDENTITY);
+        resultsFound(landscapes, Set.of(LANDSCAPES_OF_IDENTITY));
+
+        BookSearchCriteria wildcardName = getBSC_byName("*AND*");
+        resultsFound(wildcardName, estonianArtBookNames());
+
+        BookSearchCriteria notFound = getBSC_byName(NOT_FOUND);
+        noResultsFound(notFound);
+    }
+
+    @Test
+    void search_shouldFindAllBooks_whenWildcardIsWrong() {
+        BookSearchCriteria ignoredSearchTermBecauseItsOnlyWildcard = getBSC_byName(WILDCARD);
+        resultsFound(ignoredSearchTermBecauseItsOnlyWildcard, allBookNames());
+
+        BookSearchCriteria ignoredSearchTermBecauseItsNotAtLeast4CharsLong = getBSC_byName("ZZ*");
+        resultsFound(ignoredSearchTermBecauseItsNotAtLeast4CharsLong, allBookNames());
+
+        BookSearchCriteria ignoredSearchTermBecauseHasMoreThan2Wildcards = getBSC_byName("*A*B*C*");
+        resultsFound(ignoredSearchTermBecauseHasMoreThan2Wildcards, allBookNames());
+
+        BookSearchCriteria ignoredSearchTermBecauseItsABlankString = getBSC_byName(SPACE);
+        resultsFound(ignoredSearchTermBecauseItsABlankString, allBookNames());
+    }
+
+    @Test
+    void search_shouldFindBooks_whenFilteringByFullName() {
+        BookSearchCriteria conflicts = getBSC_byFullTitle(CONFLICTS_AND_ADAPTATIONS_FULL_TITLE);
+        resultsFound(conflicts, Set.of(CONFLICTS_AND_ADAPTATIONS));
+
+        BookSearchCriteria sovietEra = getBSC_byFullTitle("*Soviet Era*");
+        resultsFound(sovietEra, Set.of(CONFLICTS_AND_ADAPTATIONS));
+
+        BookSearchCriteria notFound = getBSC_byFullTitle(NOT_FOUND);
+        noResultsFound(notFound);
+    }
+
+    @Test
+    void search_shouldFindBooks_whenFilteringByDescription() {
+        BookSearchCriteria description = getBSC_byDescription(LOREM_IPSUM);
+        resultsFound(description, estonianArtBookNames());
+
+        BookSearchCriteria lorem = getBSC_byDescription("LOREM*");
+        resultsFound(lorem, estonianArtBookNames());
+
+        BookSearchCriteria notFound = getBSC_byDescription(NOT_FOUND);
+        noResultsFound(notFound);
+    }
+
+    private static BookSearchCriteria getBSC_byName(String name) {
+        return new BookSearchCriteria(name, null, null, null,
+                null, null, null,
+                null, null, null,
+                null, null, null);
+    }
+
+    private static BookSearchCriteria getBSC_byFullTitle(String fullTitle) {
+        return new BookSearchCriteria(null, fullTitle, null, null,
+                null, null, null,
+                null, null, null,
+                null, null, null);
+    }
+
+    private static BookSearchCriteria getBSC_byDescription(String description) {
+        return new BookSearchCriteria(null, null, description, null,
+                null, null, null,
+                null, null, null,
+                null, null, null);
+    }
+
     private static BookSearchCriteria getBSC_byPublisher(String publisher) {
-        return new BookSearchCriteria(null, null, null,
+        return new BookSearchCriteria(null, null, null, null,
                 null, null, null,
                 publisher, null, null,
                 null, null, null);
     }
 
     private static BookSearchCriteria getBSC_byMinMaxPublishYear(Integer minYear, Integer maxYear) {
-        return new BookSearchCriteria(null, null, null,
+        return new BookSearchCriteria(null, null, null, null,
                 null, null, null,
                 null, null, minYear,
                 maxYear, null, null);
     }
 
     private static BookSearchCriteria getBSC_byMinMaxPages(Integer minPages, Integer maxPages) {
-        return new BookSearchCriteria(null, null, null,
+        return new BookSearchCriteria(null, null, null, null,
                 null, null, null,
                 null, null, null,
                 null, minPages, maxPages);
     }
 
     private static BookSearchCriteria getBSC_byCoverType(CoverType coverType) {
-        return new BookSearchCriteria(null, null, null,
+        return new BookSearchCriteria(null, null, null, null,
                 null, null, null,
                 null, coverType, null,
                 null, null, null);
     }
 
     private static BookSearchCriteria getBSC_byAuthors(Set<String> authors) {
-        return new BookSearchCriteria(null, null, null,
+        return new BookSearchCriteria(null, null, null, null,
                 authors, null, null,
                 null, null, null,
                 null, null, null);
     }
 
     private static BookSearchCriteria getBSC_byKeywords(Set<String> keywords) {
-        return new BookSearchCriteria(null, null, null,
+        return new BookSearchCriteria(null, null, null, null,
                 null, keywords, null,
                 null, null, null,
                 null, null, null);
     }
 
     private static BookSearchCriteria getBSC_byKLanguages(Set<String> languages) {
-        return new BookSearchCriteria(null, null, null,
+        return new BookSearchCriteria(null, null, null, null,
                 null, null, languages,
                 null, null, null,
                 null, null, null);

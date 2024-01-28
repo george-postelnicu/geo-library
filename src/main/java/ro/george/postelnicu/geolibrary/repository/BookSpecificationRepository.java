@@ -20,6 +20,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.springframework.data.jpa.domain.Specification.allOf;
 import static ro.george.postelnicu.geolibrary.specification.StringLikeFieldSpecification.buildSpecification;
+import static ro.george.postelnicu.geolibrary.util.StringUtil.isBlankOrWrongWildcard;
 
 @Repository
 public class BookSpecificationRepository {
@@ -33,6 +34,7 @@ public class BookSpecificationRepository {
 
     public Page<Book> search(@NotNull @Valid BookSearchCriteria searchCriteria, @NotNull Pageable pageRequest) {
         List<Specification<Book>> specifications = new ArrayList<>();
+        specifications.add(buildNameFullTitleAndDescription(searchCriteria));
         specifications.add(buildPublisherAndCover(searchCriteria));
         specifications.add(buildPublishYear(searchCriteria));
         specifications.add(buildPages(searchCriteria));
@@ -43,8 +45,19 @@ public class BookSpecificationRepository {
         return repository.findAll(allOf(specifications), pageRequest);
     }
 
+    private static Specification<Book> buildNameFullTitleAndDescription(BookSearchCriteria searchCriteria) {
+        Specification<Book> name = isBlankOrWrongWildcard(searchCriteria.name()) ? ignore()
+                : buildSpecification(searchCriteria.name(), root -> root.get("name"));
+        Specification<Book> fullTitle = isBlankOrWrongWildcard(searchCriteria.fullTitle()) ? ignore()
+                : buildSpecification(searchCriteria.fullTitle(), root -> root.get("fullTitle"));
+        Specification<Book> description = isBlankOrWrongWildcard(searchCriteria.description()) ? ignore()
+                : buildSpecification(searchCriteria.description(), root -> root.get("description"));
+
+        return allOf(name, fullTitle, description);
+    }
+
     private static Specification<Book> buildPublisherAndCover(BookSearchCriteria searchCriteria) {
-        Specification<Book> publisherSpec = isNull(searchCriteria.publisher()) ? ignore()
+        Specification<Book> publisherSpec = isBlankOrWrongWildcard(searchCriteria.publisher()) ? ignore()
                 : buildSpecification(searchCriteria.publisher(), root -> root.get("publisher"));
         Specification<Book> coverTypeSpec = isNull(searchCriteria.coverType()) ? ignore()
                 : buildSpecification(searchCriteria.coverType(), root -> root.get("cover"));
@@ -83,10 +96,8 @@ public class BookSpecificationRepository {
                 return cb.and(greaterThanOrEqualTo, lessThanOrEqualTo);
             } else if (greaterThanOrEqualTo != null) {
                 return greaterThanOrEqualTo;
-            } else if (lessThanOrEqualTo != null) {
+            } else  {
                 return lessThanOrEqualTo;
-            } else {
-                return cb.conjunction();
             }
         };
     }

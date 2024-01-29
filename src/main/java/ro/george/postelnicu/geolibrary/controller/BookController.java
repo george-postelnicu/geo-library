@@ -42,6 +42,7 @@ public class BookController {
             @RequestParam(name = "full_title", required = false) String fullTitle,
             @RequestParam(name = "description", required = false) String description,
             @RequestParam(name = "isbn", required = false) String isbn,
+            @RequestParam(name = "barcode", required = false) String barcode,
             @RequestParam(name = "authors", required = false) Set<String> authors,
             @RequestParam(name = "keywords", required = false) Set<String> keywords,
             @RequestParam(name = "languages", required = false) Set<String> languages,
@@ -53,7 +54,7 @@ public class BookController {
             @RequestParam(name = "max_pages", required = false) Integer maxPages
     ) {
         BookSearchCriteria searchCriteria = new BookSearchCriteria(name, fullTitle, description,
-                isbn, authors, keywords, languages,
+                isbn, barcode, authors, keywords, languages,
                 publisher, coverType, minYear, maxYear, minPages, maxPages);
         Page<BookResponseDto> bookResponseDtos = searchService.search(searchCriteria,
                         PageRequest.of(page, size))

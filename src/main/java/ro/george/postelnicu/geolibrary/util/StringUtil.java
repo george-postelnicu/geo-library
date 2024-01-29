@@ -27,7 +27,11 @@ public class StringUtil {
         } else return false;
     }
 
+    public static boolean isBlank(String inputString) {
+        return Objects.isNull(inputString) || inputString.trim().isBlank();
+    }
+
     public static boolean isBlankOrWrongWildcard(String inputString) {
-        return Objects.isNull(inputString) || inputString.trim().isBlank() || isWrongWildcard(inputString);
+        return isBlank(inputString) || isWrongWildcard(inputString);
     }
 }

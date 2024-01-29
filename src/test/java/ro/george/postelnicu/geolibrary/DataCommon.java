@@ -35,6 +35,8 @@ public class DataCommon {
     public static final String KAJA = "Kaja Kahrik";
     public static final String CONFLICTS_AND_ADAPTATIONS_FULL_TITLE = "Conflicts and Adaptations. Estonian Art of the Soviet Era (1940-1991)";
     public static final String LOREM_IPSUM = "Lorem Ipsum";
+    public static final String ISBN_HOUSES_YOU_NEED_TO_VISIT = "ISBN 978-940-14620-4-4";
+    public static final String BARCODE_HOUSES_YOU_NEED_TO_VISIT = "9789401462044";
 
     public static BookDto landscapesOfIdentity() {
         BookDto dto = new BookDto(LANDSCAPES_OF_IDENTITY, "ISBN 978-9949-687-32-9", HAVE);
@@ -99,7 +101,7 @@ public class DataCommon {
     }
 
     public static BookDto oneHundredFiftyHouses() {
-        BookDto dto = new BookDto(HOUSES_YOU_NEED_TO_VISIT_BEFORE_YOU_DIE, "ISBN 978-940-14620-4-4", HAVE);
+        BookDto dto = new BookDto(HOUSES_YOU_NEED_TO_VISIT_BEFORE_YOU_DIE, ISBN_HOUSES_YOU_NEED_TO_VISIT, HAVE);
         dto.setLanguages(Set.of("English"));
         dto.setAuthors(Set.of("Thijs Demeulemeester", "Jacinthe Gigou"));
         dto.setKeywords(Set.of("Architecture", "World Architecture", "20th Century Architecture"));
@@ -107,7 +109,7 @@ public class DataCommon {
         dto.setPublisher(LANNOO);
         dto.setPublishYear(2021);
         dto.setPages(253);
-        dto.setBarcode("9789401462044");
+        dto.setBarcode(BARCODE_HOUSES_YOU_NEED_TO_VISIT);
         return dto;
     }
 

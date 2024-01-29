@@ -173,71 +173,98 @@ class BookSearchServiceTest extends AbstractIntegrationTest {
         noResultsFound(notFound);
     }
 
+    @Test
+    void search_shouldFindBooks_whenFilteringByIsbnOrByBarcode() {
+        BookSearchCriteria isbn = getBSC_byIsbnOrBarcode(ISBN_HOUSES_YOU_NEED_TO_VISIT, null);
+        resultsFound(isbn, Set.of(HOUSES_YOU_NEED_TO_VISIT_BEFORE_YOU_DIE));
+
+        BookSearchCriteria isbnWildcard = getBSC_byIsbnOrBarcode("ISBN 978-9949*", null);
+        resultsFound(isbnWildcard, estonianBookNames());
+
+        BookSearchCriteria noIsbnFound = getBSC_byIsbnOrBarcode(NOT_FOUND, null);
+        noResultsFound(noIsbnFound);
+
+        BookSearchCriteria barcode = getBSC_byIsbnOrBarcode(null, BARCODE_HOUSES_YOU_NEED_TO_VISIT);
+        resultsFound(barcode, Set.of(HOUSES_YOU_NEED_TO_VISIT_BEFORE_YOU_DIE));
+
+        BookSearchCriteria barcodeWildcard = getBSC_byIsbnOrBarcode(null, "9789949*");
+        resultsFound(barcodeWildcard, estonianBookNames());
+
+        BookSearchCriteria noBarcodeFound = getBSC_byIsbnOrBarcode(null, NOT_FOUND);
+        noResultsFound(noBarcodeFound);
+    }
+
     private static BookSearchCriteria getBSC_byName(String name) {
-        return new BookSearchCriteria(name, null, null, null,
+        return new BookSearchCriteria(name, null, null, null, null,
                 null, null, null,
                 null, null, null,
                 null, null, null);
     }
 
     private static BookSearchCriteria getBSC_byFullTitle(String fullTitle) {
-        return new BookSearchCriteria(null, fullTitle, null, null,
+        return new BookSearchCriteria(null, fullTitle, null, null, null,
                 null, null, null,
                 null, null, null,
                 null, null, null);
     }
 
     private static BookSearchCriteria getBSC_byDescription(String description) {
-        return new BookSearchCriteria(null, null, description, null,
+        return new BookSearchCriteria(null, null, description, null, null,
+                null, null, null,
+                null, null, null,
+                null, null, null);
+    }
+    private static BookSearchCriteria getBSC_byIsbnOrBarcode(String isbn, String barcode) {
+        return new BookSearchCriteria(null, null, null, isbn, barcode,
                 null, null, null,
                 null, null, null,
                 null, null, null);
     }
 
     private static BookSearchCriteria getBSC_byPublisher(String publisher) {
-        return new BookSearchCriteria(null, null, null, null,
+        return new BookSearchCriteria(null, null, null, null, null,
                 null, null, null,
                 publisher, null, null,
                 null, null, null);
     }
 
     private static BookSearchCriteria getBSC_byMinMaxPublishYear(Integer minYear, Integer maxYear) {
-        return new BookSearchCriteria(null, null, null, null,
+        return new BookSearchCriteria(null, null, null, null, null,
                 null, null, null,
                 null, null, minYear,
                 maxYear, null, null);
     }
 
     private static BookSearchCriteria getBSC_byMinMaxPages(Integer minPages, Integer maxPages) {
-        return new BookSearchCriteria(null, null, null, null,
+        return new BookSearchCriteria(null, null, null, null, null,
                 null, null, null,
                 null, null, null,
                 null, minPages, maxPages);
     }
 
     private static BookSearchCriteria getBSC_byCoverType(CoverType coverType) {
-        return new BookSearchCriteria(null, null, null, null,
+        return new BookSearchCriteria(null, null, null, null, null,
                 null, null, null,
                 null, coverType, null,
                 null, null, null);
     }
 
     private static BookSearchCriteria getBSC_byAuthors(Set<String> authors) {
-        return new BookSearchCriteria(null, null, null, null,
+        return new BookSearchCriteria(null, null, null, null, null,
                 authors, null, null,
                 null, null, null,
                 null, null, null);
     }
 
     private static BookSearchCriteria getBSC_byKeywords(Set<String> keywords) {
-        return new BookSearchCriteria(null, null, null, null,
+        return new BookSearchCriteria(null, null, null, null, null,
                 null, keywords, null,
                 null, null, null,
                 null, null, null);
     }
 
     private static BookSearchCriteria getBSC_byKLanguages(Set<String> languages) {
-        return new BookSearchCriteria(null, null, null, null,
+        return new BookSearchCriteria(null, null, null, null, null,
                 null, null, languages,
                 null, null, null,
                 null, null, null);

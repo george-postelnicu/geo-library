@@ -35,6 +35,7 @@ public class BookSpecificationRepository {
     public Page<Book> search(@NotNull @Valid BookSearchCriteria searchCriteria, @NotNull Pageable pageRequest) {
         List<Specification<Book>> specifications = new ArrayList<>();
         specifications.add(buildNameFullTitleAndDescription(searchCriteria));
+        specifications.add(buildIsbnAndBarcode(searchCriteria));
         specifications.add(buildPublisherAndCover(searchCriteria));
         specifications.add(buildPublishYear(searchCriteria));
         specifications.add(buildPages(searchCriteria));
@@ -54,6 +55,15 @@ public class BookSpecificationRepository {
                 : buildSpecification(searchCriteria.description(), root -> root.get("description"));
 
         return allOf(name, fullTitle, description);
+    }
+
+    private Specification<Book> buildIsbnAndBarcode(BookSearchCriteria searchCriteria) {
+        Specification<Book> isbn = isBlankOrWrongWildcard(searchCriteria.isbn()) ? ignore()
+                : buildSpecification(searchCriteria.isbn(), root -> root.get("isbn"));
+        Specification<Book> fullTitle = isBlankOrWrongWildcard(searchCriteria.barcode()) ? ignore()
+                : buildSpecification(searchCriteria.barcode(), root -> root.get("barcode"));
+
+        return allOf(isbn, fullTitle);
     }
 
     private static Specification<Book> buildPublisherAndCover(BookSearchCriteria searchCriteria) {

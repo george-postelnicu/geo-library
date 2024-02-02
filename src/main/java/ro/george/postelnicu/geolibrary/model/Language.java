@@ -1,20 +1,20 @@
 package ro.george.postelnicu.geolibrary.model;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.NaturalId;
 
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import static jakarta.persistence.GenerationType.IDENTITY;
+
 @Entity
 @Table(name = "language")
 public class Language {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
-    @NaturalId(mutable = true)
     @Column(unique = true)
     private String name;
 

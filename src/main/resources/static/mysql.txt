@@ -1,4 +1,12 @@
-create database library; -- Creates the new database
-create user 'spring'@'%' identified by 'ThePassword'; -- Creates the user
-grant all on library.* to 'spring'@'%'; -- Gives all privileges to the new user on the newly created database
-drop database library; -- Deletes the newly created database
+# alter table book_author
+#     add constraint fk_book_author_relation_author_id foreign key (author_id) references author (id);
+# alter table book_author
+#     add constraint fk_book_author_relation_book_id foreign key (book_id) references book (id);
+# alter table book_keyword
+#     add constraint fk_book_keyword_relation_book_id foreign key (book_id) references book (id);
+# alter table book_keyword
+#     add constraint fk_book_keyword_relation_keyword_id foreign key (keyword_id) references keyword (id);
+# alter table book_language
+#     add constraint fk_book_language_relation_book_id foreign key (book_id) references book (id);
+# alter table book_language
+#     add constraint fk_book_language_relation_language_id foreign key (language_id) references language (id);

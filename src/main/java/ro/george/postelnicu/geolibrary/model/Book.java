@@ -6,11 +6,13 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import static jakarta.persistence.GenerationType.IDENTITY;
+
 @Entity
 @Table(name = "book")
 public class Book {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = IDENTITY)
     private Long id;
     private String name;
     private String fullTitle;

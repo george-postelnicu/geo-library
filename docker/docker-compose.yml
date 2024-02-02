@@ -1,0 +1,31 @@
+version: '3.7'
+services:
+  db:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_DATABASE: library
+      MYSQL_USER: spring
+      MYSQL_PASSWORD: ThePassword
+      MYSQL_ROOT_PASSWORD: ThisIsClassified
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    restart: always
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: ThisIsClassified
+    ports:
+      - '8080:80'
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge
+volumes:
+  db_data:

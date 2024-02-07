@@ -7,26 +7,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import ro.george.postelnicu.geolibrary.AbstractIntegrationTest;
+import ro.george.postelnicu.geolibrary.dto.ErrorDto;
 import ro.george.postelnicu.geolibrary.dto.author.AuthorResponseDto;
 import ro.george.postelnicu.geolibrary.dto.book.BookDto;
 import ro.george.postelnicu.geolibrary.dto.book.BookResponseDto;
 import ro.george.postelnicu.geolibrary.dto.keyword.KeywordResponseDto;
 import ro.george.postelnicu.geolibrary.dto.language.LanguageResponseDto;
-import ro.george.postelnicu.geolibrary.model.CoverType;
+import ro.george.postelnicu.geolibrary.model.Book;
 import ro.george.postelnicu.geolibrary.service.BookService;
 
-import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ro.george.postelnicu.geolibrary.DataCommon.landscapesOfIdentity;
+import static ro.george.postelnicu.geolibrary.DataCommon.*;
 import static ro.george.postelnicu.geolibrary.controller.ApiPrefix.BOOKS;
+import static ro.george.postelnicu.geolibrary.controller.GlobalControllerAdvice.BAD_REQUEST_ERROR_TYPE;
+import static ro.george.postelnicu.geolibrary.exception.EntityAlreadyExistException.ENTITY_ALREADY_HAS_A;
+import static ro.george.postelnicu.geolibrary.exception.EntityNotFoundException.CANNOT_FIND_ENTITY_ID;
+import static ro.george.postelnicu.geolibrary.model.EntityName.BOOK;
 
 class BookControllerTest extends AbstractIntegrationTest {
 
@@ -49,7 +55,7 @@ class BookControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void create() throws Exception {
+    void create_isSuccessful() throws Exception {
         BookDto requestDto = landscapesOfIdentity();
 
         String responseString = mockMvc.perform(
@@ -63,7 +69,6 @@ class BookControllerTest extends AbstractIntegrationTest {
                 .getContentAsString();
 
         BookResponseDto responseDto = objectMapper.readValue(responseString, BookResponseDto.class);
-
 
         assertNotNull(responseDto);
         assertEquals(requestDto.getName(), responseDto.getName());
@@ -81,9 +86,73 @@ class BookControllerTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void read() {
+    void create_shouldThrowException_whenBookNameExists() throws Exception {
+        BookDto requestDto = landscapesOfIdentity();
+        service.create(requestDto);
 
+        String responseString = mockMvc.perform(
+                        post(BOOKS)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(requestDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
+        ErrorDto errorDto = objectMapper.readValue(responseString, ErrorDto.class);
+
+        assertEquals(BAD_REQUEST_ERROR_TYPE, errorDto.getTitle());
+        assertEquals(String.format(ENTITY_ALREADY_HAS_A, BOOK, LANDSCAPES_OF_IDENTITY), errorDto.getDetail());
+    }
+
+    @Test
+    @Transactional
+    void read_shouldReturn200_whenIdIsFound() throws Exception {
+        BookDto requestDto = landscapesOfIdentity();
+        Book book = service.create(requestDto);
+
+        String responseString = mockMvc.perform(
+                        get(STR."\{BOOKS}/{id}", book.getId())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BookResponseDto responseDto = objectMapper.readValue(responseString, BookResponseDto.class);
+
+        assertNotNull(responseDto);
+        assertEquals(requestDto.getName(), responseDto.getName());
+        assertEquals(requestDto.getFullTitle(), responseDto.getFullTitle());
+        assertEquals(requestDto.getDescription(), responseDto.getDescription());
+        assertEquals(requestDto.getIsbn(), responseDto.getIsbn());
+        assertEquals(requestDto.getBarcode(), responseDto.getBarcode());
+        assertEquals(requestDto.getAuthors(), getAuthorNames(responseDto.getAuthors()));
+        assertEquals(requestDto.getKeywords(), getKeywordNames(responseDto.getKeywords()));
+        assertEquals(requestDto.getLanguages(), getLanguageNames(responseDto.getLanguages()));
+        assertEquals(requestDto.getPublisher(), responseDto.getPublisher());
+        assertEquals(requestDto.getCover(), responseDto.getCover());
+        assertEquals(requestDto.getPublishYear(), responseDto.getPublishYear());
+        assertEquals(requestDto.getPages(), responseDto.getPages());
+    }
+
+    @Test
+    void read_shouldThrowException_whenIdDoesNotExist() throws Exception {
+        String responseString = mockMvc.perform(
+                        get(STR."\{BOOKS}/{id}", ID_NOT_FOUND)
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        ErrorDto errorDto = objectMapper.readValue(responseString, ErrorDto.class);
+
+        assertEquals(BAD_REQUEST_ERROR_TYPE, errorDto.getTitle());
+        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, BOOK, ID_NOT_FOUND), errorDto.getDetail());
     }
 
     private static Set<String> getAuthorNames(Set<AuthorResponseDto> authors) {

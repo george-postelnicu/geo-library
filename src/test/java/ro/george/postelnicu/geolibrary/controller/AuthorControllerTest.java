@@ -33,21 +33,21 @@ import static ro.george.postelnicu.geolibrary.model.EntityName.AUTHOR;
 
 class AuthorControllerTest extends AbstractIntegrationTest {
 
-    private final AuthorController authorController;
+    private final AuthorController controller;
     private final AuthorService service;
     private final ObjectMapper objectMapper;
     private MockMvc mockMvc;
 
     @Autowired
     AuthorControllerTest(AuthorController controller, AuthorService service, ObjectMapper objectMapper) {
-        this.authorController = controller;
+        this.controller = controller;
         this.service = service;
         this.objectMapper = objectMapper;
     }
 
     @BeforeEach
     public void setup() {
-        this.mockMvc = MockMvcBuilders.standaloneSetup(authorController)
+        this.mockMvc = MockMvcBuilders.standaloneSetup(controller)
                 .setControllerAdvice(new GlobalControllerAdvice()).build();
     }
 

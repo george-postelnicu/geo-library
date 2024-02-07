@@ -5,10 +5,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ro.george.postelnicu.geolibrary.dto.BookDto;
+import ro.george.postelnicu.geolibrary.dto.book.BookDto;
 import ro.george.postelnicu.geolibrary.dto.book.BookResponseDto;
-import ro.george.postelnicu.geolibrary.exception.EntityNotFoundException;
-import ro.george.postelnicu.geolibrary.mapper.LibraryMapper;
+import ro.george.postelnicu.geolibrary.mapper.BookMapper;
 import ro.george.postelnicu.geolibrary.model.Book;
 import ro.george.postelnicu.geolibrary.model.BookSearchCriteria;
 import ro.george.postelnicu.geolibrary.model.CoverType;
@@ -16,8 +15,11 @@ import ro.george.postelnicu.geolibrary.repository.BookRepository;
 import ro.george.postelnicu.geolibrary.service.BookSearchService;
 import ro.george.postelnicu.geolibrary.service.BookService;
 
+import java.net.URI;
 import java.util.Set;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.web.util.UriComponentsBuilder.fromPath;
 import static ro.george.postelnicu.geolibrary.controller.ApiPrefix.BOOKS;
 
 @RestController
@@ -58,22 +60,28 @@ public class BookController {
                 publisher, coverType, minYear, maxYear, minPages, maxPages);
         Page<BookResponseDto> bookResponseDtos = searchService.search(searchCriteria,
                         PageRequest.of(page, size))
-                .map(LibraryMapper.INSTANCE::toBookResponseDto);
+                .map(BookMapper.INSTANCE::toBookResponseDto);
         return ResponseEntity.ok(bookResponseDtos);
     }
 
-    @PostMapping()
-    Book create(@RequestBody BookDto bookDto) {
+    @PostMapping(produces = APPLICATION_JSON_VALUE,
+            consumes = APPLICATION_JSON_VALUE)
+    ResponseEntity<BookResponseDto> create(@RequestBody BookDto bookDto) {
         Book book = service.create(bookDto);
+        URI location = fromPath(BOOKS).pathSegment("{id}")
+                .buildAndExpand(book.getId()).toUri();
+        BookResponseDto responseDto = BookMapper.INSTANCE.toBookResponseDto(book);
 
-        return repository.save(book);
+        return ResponseEntity.created(location).body(responseDto);
     }
 
     @GetMapping("/{id}")
-    Book read(@PathVariable Long id) {
+    ResponseEntity<BookResponseDto> read(@PathVariable Long id) {
+        Book book = service.read(id);
 
-        return repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("book", id));
+        BookResponseDto responseDto = BookMapper.INSTANCE.toBookResponseDto(book);
+
+        return ResponseEntity.ok().body(responseDto);
     }
 
     @PutMapping("/{id}")

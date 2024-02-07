@@ -1,6 +1,6 @@
 package ro.george.postelnicu.geolibrary;
 
-import ro.george.postelnicu.geolibrary.dto.BookDto;
+import ro.george.postelnicu.geolibrary.dto.book.BookDto;
 
 import java.util.Set;
 
@@ -39,7 +39,10 @@ public class DataCommon {
     public static final String BARCODE_HOUSES_YOU_NEED_TO_VISIT = "9789401462044";
 
     public static BookDto landscapesOfIdentity() {
-        BookDto dto = new BookDto(LANDSCAPES_OF_IDENTITY, "ISBN 978-9949-687-32-9", HAVE);
+        BookDto dto = new BookDto();
+        dto.setName(LANDSCAPES_OF_IDENTITY);
+        dto.setIsbn("ISBN 978-9949-687-32-9");
+        dto.setStatus(HAVE);
         dto.setFullTitle("Landscapes of Identity: Estonian Art 1700-1945 The 3rd-floor permanent exhibition of the Kumu Art Museum");
         dto.setDescription(LOREM_IPSUM);
         dto.setAuthors(Set.of(LINDA, KADI, BART, KAJA));
@@ -63,7 +66,10 @@ public class DataCommon {
     }
 
     public static BookDto conflictsAndAdaptations() {
-        BookDto dto = new BookDto(CONFLICTS_AND_ADAPTATIONS, "ISBN 978-9949-687-44-2", HAVE);
+        BookDto dto = new BookDto();
+        dto.setName(CONFLICTS_AND_ADAPTATIONS);
+        dto.setIsbn("ISBN 978-9949-687-44-2");
+        dto.setStatus(HAVE);
         dto.setFullTitle(CONFLICTS_AND_ADAPTATIONS_FULL_TITLE);
         dto.setDescription(LOREM_IPSUM);
         dto.setAuthors(Set.of("Anu Allas", "Sirje Helme", "Liisa Kaljula", KAJA));
@@ -83,7 +89,10 @@ public class DataCommon {
 
 
     public static BookDto oneHundredStepsThrough20thCenturyEstonianArchitecture() {
-        BookDto dto = new BookDto(_20TH_CENTURY_ESTONIAN_ARCHITECTURE, "ISBN 978-9949-9078-6-1", HAVE);
+        BookDto dto = new BookDto();
+        dto.setName(_20TH_CENTURY_ESTONIAN_ARCHITECTURE);
+        dto.setIsbn("ISBN 978-9949-9078-6-1");
+        dto.setStatus(HAVE);
         dto.setLanguages(bothLanguages());
         dto.setAuthors(Set.of("Lilian Hansar", "Jaak Huimerind", "Karen Jagodin", "Liina Jänes", "Mart Kalm",
                 "Epp Lankots", "Maris Mändel", "Triin Ojari", "Oliver Orro"));
@@ -101,7 +110,10 @@ public class DataCommon {
     }
 
     public static BookDto oneHundredFiftyHouses() {
-        BookDto dto = new BookDto(HOUSES_YOU_NEED_TO_VISIT_BEFORE_YOU_DIE, ISBN_HOUSES_YOU_NEED_TO_VISIT, HAVE);
+        BookDto dto = new BookDto();
+        dto.setName(HOUSES_YOU_NEED_TO_VISIT_BEFORE_YOU_DIE);
+        dto.setIsbn(ISBN_HOUSES_YOU_NEED_TO_VISIT);
+        dto.setStatus(HAVE);
         dto.setLanguages(Set.of("English"));
         dto.setAuthors(Set.of("Thijs Demeulemeester", "Jacinthe Gigou"));
         dto.setKeywords(Set.of("Architecture", "World Architecture", "20th Century Architecture"));

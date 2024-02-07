@@ -35,7 +35,6 @@ class KeywordControllerTest extends AbstractIntegrationTest {
     private final KeywordController controller;
     private final KeywordService service;
     private final ObjectMapper objectMapper;
-    private final Long NON_EXISTING_ID = 0L;
     private MockMvc mockMvc;
 
     @Autowired
@@ -155,7 +154,7 @@ class KeywordControllerTest extends AbstractIntegrationTest {
     @Test
     void read_shouldThrowException_whenIdIsNotFound() throws Exception {
         String responseString = this.mockMvc.perform(
-                        get(STR."\{KEYWORDS}/\{NON_EXISTING_ID}")
+                        get(STR."\{KEYWORDS}/\{ID_NOT_FOUND}")
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -166,7 +165,7 @@ class KeywordControllerTest extends AbstractIntegrationTest {
         ErrorDto errorDto = objectMapper.readValue(responseString, ErrorDto.class);
 
         assertEquals(BAD_REQUEST_ERROR_TYPE, errorDto.getTitle());
-        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, KEYWORD, NON_EXISTING_ID), errorDto.getDetail());
+        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, KEYWORD, ID_NOT_FOUND), errorDto.getDetail());
     }
 
     @Test
@@ -195,7 +194,7 @@ class KeywordControllerTest extends AbstractIntegrationTest {
     void update_shouldThrowException_whenIdIsNotFound() throws Exception {
         KeywordDto keywordDto = new KeywordDto(ART);
         String responseString = this.mockMvc.perform(
-                        put(STR."\{KEYWORDS}/\{NON_EXISTING_ID}")
+                        put(STR."\{KEYWORDS}/\{ID_NOT_FOUND}")
                                 .content(objectMapper.writeValueAsString(keywordDto))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
@@ -207,7 +206,7 @@ class KeywordControllerTest extends AbstractIntegrationTest {
         ErrorDto errorDto = objectMapper.readValue(responseString, ErrorDto.class);
 
         assertEquals(BAD_REQUEST_ERROR_TYPE, errorDto.getTitle());
-        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, KEYWORD, NON_EXISTING_ID), errorDto.getDetail());
+        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, KEYWORD, ID_NOT_FOUND), errorDto.getDetail());
     }
 
     @Test
@@ -224,7 +223,7 @@ class KeywordControllerTest extends AbstractIntegrationTest {
     @Test
     void delete_shouldThrowException_whenIdIsNotFound() throws Exception {
         String responseString = this.mockMvc.perform(
-                        delete(STR."\{KEYWORDS}/\{NON_EXISTING_ID}")
+                        delete(STR."\{KEYWORDS}/\{ID_NOT_FOUND}")
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -235,6 +234,6 @@ class KeywordControllerTest extends AbstractIntegrationTest {
         ErrorDto errorDto = objectMapper.readValue(responseString, ErrorDto.class);
 
         assertEquals(BAD_REQUEST_ERROR_TYPE, errorDto.getTitle());
-        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, KEYWORD, NON_EXISTING_ID), errorDto.getDetail());
+        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, KEYWORD, ID_NOT_FOUND), errorDto.getDetail());
     }
 }

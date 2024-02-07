@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import ro.george.postelnicu.geolibrary.AbstractIntegrationTest;
-import ro.george.postelnicu.geolibrary.dto.BookDto;
+import ro.george.postelnicu.geolibrary.dto.book.BookDto;
 import ro.george.postelnicu.geolibrary.dto.keyword.KeywordDto;
 import ro.george.postelnicu.geolibrary.dto.keyword.KeywordsDto;
 import ro.george.postelnicu.geolibrary.exception.EntityAlreadyExistException;

@@ -3,11 +3,12 @@ package ro.george.postelnicu.geolibrary.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ro.george.postelnicu.geolibrary.dto.BookDto;
+import ro.george.postelnicu.geolibrary.dto.book.BookDto;
 import ro.george.postelnicu.geolibrary.dto.author.AuthorDto;
 import ro.george.postelnicu.geolibrary.dto.keyword.KeywordDto;
 import ro.george.postelnicu.geolibrary.dto.language.LanguageDto;
 import ro.george.postelnicu.geolibrary.exception.EntityAlreadyExistException;
+import ro.george.postelnicu.geolibrary.exception.EntityNotFoundException;
 import ro.george.postelnicu.geolibrary.exception.EntityValidationException;
 import ro.george.postelnicu.geolibrary.mapper.LibraryMapper;
 import ro.george.postelnicu.geolibrary.model.Book;
@@ -51,6 +52,11 @@ public class BookService {
         saveLanguages(bookDto.getLanguages(), book);
 
         return repository.save(book);
+    }
+    @Transactional(readOnly = true, propagation = REQUIRED)
+    public Book read(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(BOOK, id));
     }
 
     private void saveAuthors(Set<String> authors, Book book) {

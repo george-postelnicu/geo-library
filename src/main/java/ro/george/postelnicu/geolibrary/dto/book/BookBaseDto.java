@@ -1,4 +1,4 @@
-package ro.george.postelnicu.geolibrary.dto;
+package ro.george.postelnicu.geolibrary.dto.book;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -6,16 +6,11 @@ import jakarta.validation.constraints.NotBlank;
 import ro.george.postelnicu.geolibrary.model.CoverType;
 import ro.george.postelnicu.geolibrary.model.StatusType;
 
-import java.util.Set;
-
-public class BookDto {
+public class BookBaseDto {
     @NotBlank
     private String name;
     private String fullTitle;
     private String description;
-    private Set<String> authors;
-    private Set<String> keywords;
-    private Set<String> languages;
     private String publisher;
     @NotBlank
     private String isbn;
@@ -29,12 +24,6 @@ public class BookDto {
     private String barcode;
     @NotBlank
     private StatusType status;
-
-    public BookDto(String name, String isbn, StatusType status) {
-        this.name = name;
-        this.isbn = isbn;
-        this.status = status;
-    }
 
     public String getName() {
         return name;
@@ -58,30 +47,6 @@ public class BookDto {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public Set<String> getAuthors() {
-        return authors;
-    }
-
-    public void setAuthors(Set<String> authors) {
-        this.authors = authors;
-    }
-
-    public Set<String> getKeywords() {
-        return keywords;
-    }
-
-    public void setKeywords(Set<String> keywords) {
-        this.keywords = keywords;
-    }
-
-    public Set<String> getLanguages() {
-        return languages;
-    }
-
-    public void setLanguages(Set<String> languages) {
-        this.languages = languages;
     }
 
     public String getPublisher() {

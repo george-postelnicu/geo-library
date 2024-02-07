@@ -37,7 +37,6 @@ class LanguageControllerTest extends AbstractIntegrationTest {
     private final LanguageController controller;
     private final LanguageService service;
     private final ObjectMapper objectMapper;
-    private final Long NON_EXISTING_ID = 0L;
     private MockMvc mockMvc;
 
     @Autowired
@@ -163,7 +162,7 @@ class LanguageControllerTest extends AbstractIntegrationTest {
     void read_shouldThrowException_whenIdIsNotFound() throws Exception {
         String responseString = this.mockMvc
                 .perform(
-                        get(STR."\{LANGUAGES}/\{NON_EXISTING_ID}")
+                        get(STR."\{LANGUAGES}/\{ID_NOT_FOUND}")
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -173,7 +172,7 @@ class LanguageControllerTest extends AbstractIntegrationTest {
         ErrorDto errorDto = objectMapper.readValue(responseString, ErrorDto.class);
 
         assertEquals(BAD_REQUEST_ERROR_TYPE, errorDto.getTitle());
-        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, LANGUAGE, NON_EXISTING_ID), errorDto.getDetail());
+        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, LANGUAGE, ID_NOT_FOUND), errorDto.getDetail());
     }
 
     @Test
@@ -204,7 +203,7 @@ class LanguageControllerTest extends AbstractIntegrationTest {
 
         String responseString = this.mockMvc
                 .perform(
-                        put(STR."\{LANGUAGES}/\{NON_EXISTING_ID}")
+                        put(STR."\{LANGUAGES}/\{ID_NOT_FOUND}")
                                 .content(objectMapper.writeValueAsString(createDto))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
@@ -216,7 +215,7 @@ class LanguageControllerTest extends AbstractIntegrationTest {
         ErrorDto errorDto = objectMapper.readValue(responseString, ErrorDto.class);
 
         assertEquals(BAD_REQUEST_ERROR_TYPE, errorDto.getTitle());
-        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, LANGUAGE, NON_EXISTING_ID), errorDto.getDetail());
+        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, LANGUAGE, ID_NOT_FOUND), errorDto.getDetail());
     }
 
     @Test
@@ -235,7 +234,7 @@ class LanguageControllerTest extends AbstractIntegrationTest {
     void delete_shouldThrowException_whenIdIsNotFound() throws Exception {
         String responseString = this.mockMvc
                 .perform(
-                        delete(STR."\{LANGUAGES}/\{NON_EXISTING_ID}")
+                        delete(STR."\{LANGUAGES}/\{ID_NOT_FOUND}")
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -245,6 +244,6 @@ class LanguageControllerTest extends AbstractIntegrationTest {
         ErrorDto errorDto = objectMapper.readValue(responseString, ErrorDto.class);
 
         assertEquals(BAD_REQUEST_ERROR_TYPE, errorDto.getTitle());
-        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, LANGUAGE, NON_EXISTING_ID), errorDto.getDetail());
+        assertEquals(String.format(CANNOT_FIND_ENTITY_ID, LANGUAGE, ID_NOT_FOUND), errorDto.getDetail());
     }
 }

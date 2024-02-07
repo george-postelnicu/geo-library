@@ -17,7 +17,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static ro.george.postelnicu.geolibrary.DataCommon.*;
 import static ro.george.postelnicu.geolibrary.exception.EntityAlreadyExistException.ENTITY_ALREADY_HAS_A;
+import static ro.george.postelnicu.geolibrary.exception.EntityAlreadyExistException.ENTITY_ALREADY_HAS_COLLECTION;
 import static ro.george.postelnicu.geolibrary.exception.EntityValidationException.ENTITY_VALIDATION_FAILURE;
 import static ro.george.postelnicu.geolibrary.model.CoverType.SOFTCOVER_WITH_DUST_JACKET;
 import static ro.george.postelnicu.geolibrary.model.EntityName.BOOK;
@@ -34,7 +36,7 @@ class BookServiceTest extends AbstractIntegrationTest {
 
     @Test
     void create_isSuccessful_whenFullBookDetailsAreGiven() {
-        BookDto dto = DataCommon.landscapesOfIdentity();
+        BookDto dto = landscapesOfIdentity();
 
         Book book = service.create(dto);
 
@@ -57,8 +59,8 @@ class BookServiceTest extends AbstractIntegrationTest {
 
     @Test
     void create_isSuccessful_whenTwoBooksReturnSameIdsForExternalEntities() {
-        Book book1 = service.create(DataCommon.landscapesOfIdentity());
-        Book book2 = service.create(DataCommon.anotherBookLikeLandscapes());
+        Book book1 = service.create(landscapesOfIdentity());
+        Book book2 = service.create(anotherBookLikeLandscapes());
 
         List<Language> book1Languages = book1.getLanguages().stream().toList();
         List<Language> book2Languages = book2.getLanguages().stream().toList();
@@ -78,8 +80,8 @@ class BookServiceTest extends AbstractIntegrationTest {
 
     @Test
     void create_throwsException_whenNameAlreadyExistsCaseInsensitive() {
-        BookDto dto = DataCommon.landscapesOfIdentity();
-        BookDto fail = DataCommon.landscapesOfIdentity();
+        BookDto dto = landscapesOfIdentity();
+        BookDto fail = landscapesOfIdentity();
         fail.setName(fail.getName().toUpperCase());
 
         service.create(dto);
@@ -91,12 +93,48 @@ class BookServiceTest extends AbstractIntegrationTest {
 
     @Test
     void create_throwsException_whenNameIsNotIncludedInFullTitle() {
-        BookDto dto = DataCommon.landscapesOfIdentity();
+        BookDto dto = landscapesOfIdentity();
         dto.setFullTitle("Landscapes of Identiti: Estonian Art 1700-1945 The 3rd-floor permanent exhibition of the Kumu Art Museum");
 
         EntityValidationException ex = assertThrows(EntityValidationException.class, () -> service.create(dto));
 
         assertEquals(String.format(ENTITY_VALIDATION_FAILURE, BOOK, "Name is not included in full title!"), ex.getMessage());
+    }
+
+    @Test
+    void create_throwsException_whenIsbnIsFoundInAnotherBook() {
+        BookDto dto = landscapesOfIdentity();
+        BookDto duplicateIsbn = conflictsAndAdaptations();
+        duplicateIsbn.setIsbn(dto.getIsbn());
+
+        service.create(dto);
+        EntityAlreadyExistException ex = assertThrows(EntityAlreadyExistException.class, () -> service.create(duplicateIsbn));
+
+        assertEquals(String.format(ENTITY_ALREADY_HAS_COLLECTION, BOOK, Set.of(duplicateIsbn.getName(), duplicateIsbn.getIsbn())), ex.getMessage());
+    }
+
+    @Test
+    void create_throwsException_whenBarcodeIsFoundInAnotherBook() {
+        BookDto dto = landscapesOfIdentity();
+        BookDto duplicateBarcode = conflictsAndAdaptations();
+        duplicateBarcode.setBarcode(dto.getBarcode());
+
+        service.create(dto);
+        EntityAlreadyExistException ex = assertThrows(EntityAlreadyExistException.class, () -> service.create(duplicateBarcode));
+
+        assertEquals(String.format(ENTITY_ALREADY_HAS_COLLECTION, BOOK, Set.of(duplicateBarcode.getName(), duplicateBarcode.getBarcode())), ex.getMessage());
+    }
+
+    @Test
+    void update_isSuccessful() {
+        BookDto dto = landscapesOfIdentity();
+        Book book = service.create(dto);
+
+        BookDto updatedDto = landscapesOfIdentity();
+        updatedDto.setName("Updated Book Name");
+        updatedDto.setFullTitle("Updated Book Name Fully");
+        Book updatedBook = service.update(book.getId(), updatedDto);
+        assertEquals(updatedDto.getName(), updatedBook.getName());
     }
 
     private static Set<String> getAuthorNames(Set<Author> authors) {

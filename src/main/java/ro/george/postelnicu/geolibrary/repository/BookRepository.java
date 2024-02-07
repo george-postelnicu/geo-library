@@ -9,4 +9,8 @@ import ro.george.postelnicu.geolibrary.model.Book;
 @Repository
 public interface BookRepository extends JpaRepository<Book, Long>, JpaSpecificationExecutor<Book> {
     boolean existsByNameIgnoreCase(@NotBlank String name);
+
+    boolean existsByIsbnIgnoreCase(@NotBlank String isbn);
+
+    boolean existsByBarcodeIgnoreCase(@NotBlank String barcode);
 }

@@ -14,6 +14,7 @@ import ro.george.postelnicu.geolibrary.mapper.LibraryMapper;
 import ro.george.postelnicu.geolibrary.model.Book;
 import ro.george.postelnicu.geolibrary.repository.BookRepository;
 
+import java.util.Objects;
 import java.util.Set;
 
 import static org.springframework.transaction.annotation.Propagation.REQUIRED;
@@ -44,7 +45,13 @@ public class BookService {
         if (repository.existsByNameIgnoreCase(book.getName())) {
             throw new EntityAlreadyExistException(BOOK, book.getName());
         }
-        validateName(book.getName(), book.getFullTitle());
+        if (Objects.nonNull(book.getIsbn()) && repository.existsByIsbnIgnoreCase(book.getIsbn())) {
+            throw new EntityAlreadyExistException(BOOK, Set.of(book.getName(), book.getIsbn()));
+        }
+        if (Objects.nonNull(book.getBarcode()) && repository.existsByBarcodeIgnoreCase(book.getBarcode())) {
+            throw new EntityAlreadyExistException(BOOK, Set.of(book.getName(), book.getBarcode()));
+        }
+        validateNameIsContainedInFullTitle(book.getName(), book.getFullTitle());
         isbnService.isValid(book.getIsbn());
 
         saveAuthors(bookDto.getAuthors(), book);
@@ -57,6 +64,51 @@ public class BookService {
     public Book read(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(BOOK, id));
+    }
+
+    @Transactional(propagation = REQUIRED)
+    public Book update(Long id, BookDto updatedDto) {
+        Book existingBook = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(BOOK, id));
+        Book updatedBook = LibraryMapper.INSTANCE.toBook(updatedDto);
+        if (!existingBook.getName().equalsIgnoreCase(updatedBook.getName()) &&
+                repository.existsByNameIgnoreCase(updatedBook.getName())) {
+            throw new EntityAlreadyExistException(BOOK, updatedBook.getName());
+        }
+        if (Objects.nonNull(updatedBook.getIsbn()) &&
+                !existingBook.getIsbn().equalsIgnoreCase(updatedBook.getIsbn()) &&
+                repository.existsByIsbnIgnoreCase(updatedBook.getIsbn())) {
+            throw new EntityAlreadyExistException(BOOK, Set.of(updatedBook.getName(), updatedBook.getIsbn()));
+        }
+        if (Objects.nonNull(updatedBook.getBarcode()) &&
+                !existingBook.getBarcode().equalsIgnoreCase(updatedBook.getBarcode()) &&
+                repository.existsByBarcodeIgnoreCase(updatedBook.getBarcode())) {
+            throw new EntityAlreadyExistException(BOOK, Set.of(updatedBook.getName(), updatedBook.getBarcode()));
+        }
+        validateNameIsContainedInFullTitle(updatedBook.getName(), updatedBook.getFullTitle());
+        isbnService.isValid(updatedBook.getIsbn());
+
+        existingBook.setName(updatedBook.getName());
+        existingBook.setFullTitle(updatedBook.getFullTitle());
+        existingBook.setDescription(updatedBook.getDescription());
+        existingBook.setPublisher(updatedBook.getPublisher());
+        existingBook.setIsbn(updatedBook.getIsbn());
+        existingBook.setCover(updatedBook.getCover());
+        existingBook.setPublishYear(updatedBook.getPublishYear());
+        existingBook.setPages(updatedBook.getPages());
+        existingBook.setBarcode(updatedBook.getBarcode());
+        existingBook.setStatus(updatedBook.getStatus());
+
+        existingBook.getAuthors().clear();
+        saveAuthors(updatedDto.getAuthors(), existingBook);
+
+        existingBook.getKeywords().clear();
+        saveKeywords(updatedDto.getKeywords(), existingBook);
+
+        existingBook.getLanguages().clear();
+        saveLanguages(updatedDto.getLanguages(), existingBook);
+
+        return repository.save(existingBook);
     }
 
     private void saveAuthors(Set<String> authors, Book book) {
@@ -89,7 +141,7 @@ public class BookService {
                 .forEach(book::addLanguage);
     }
 
-    private void validateName(String name, String fullTitle) {
+    private void validateNameIsContainedInFullTitle(String name, String fullTitle) {
         if (fullTitle != null && !fullTitle.toLowerCase().contains(name.toLowerCase())) {
             throw new EntityValidationException(BOOK, "Name is not included in full title!");
         }

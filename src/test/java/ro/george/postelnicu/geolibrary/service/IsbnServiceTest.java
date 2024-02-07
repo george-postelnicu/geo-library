@@ -1,5 +1,6 @@
 package ro.george.postelnicu.geolibrary.service;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import ro.george.postelnicu.geolibrary.AbstractIntegrationTest;
@@ -29,6 +30,8 @@ class IsbnServiceTest extends AbstractIntegrationTest {
         service.isValid("9780596520687");
         service.isValid("ISBN-10 0-596-52068-9");
         service.isValid("0-596-52068-9");
+        service.isValid("ISBN 9971-5-0210-0");
+        service.isValid("0-8044-2957-X");
     }
 
     @Test

@@ -15,16 +15,15 @@ import ro.george.postelnicu.geolibrary.dto.book.BookDto;
 import ro.george.postelnicu.geolibrary.dto.book.BookResponseDto;
 import ro.george.postelnicu.geolibrary.dto.keyword.KeywordResponseDto;
 import ro.george.postelnicu.geolibrary.dto.language.LanguageResponseDto;
+import ro.george.postelnicu.geolibrary.exception.EntityNotFoundException;
 import ro.george.postelnicu.geolibrary.model.Book;
 import ro.george.postelnicu.geolibrary.service.BookService;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ro.george.postelnicu.geolibrary.DataCommon.*;
@@ -153,6 +152,84 @@ class BookControllerTest extends AbstractIntegrationTest {
 
         assertEquals(BAD_REQUEST_ERROR_TYPE, errorDto.getTitle());
         assertEquals(String.format(CANNOT_FIND_ENTITY_ID, BOOK, ID_NOT_FOUND), errorDto.getDetail());
+    }
+
+    @Test
+    void update_isSuccessful() throws Exception {
+        BookDto requestDto = landscapesOfIdentity();
+        Book book = service.create(requestDto);
+
+        BookDto updatedDto = conflictsAndAdaptations();
+
+        String responseString = mockMvc.perform(
+                        put(STR."\{BOOKS}/{id}", book.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(updatedDto)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BookResponseDto responseDto = objectMapper.readValue(responseString, BookResponseDto.class);
+
+        assertNotNull(responseDto);
+        assertEquals(updatedDto.getName(), responseDto.getName());
+        assertEquals(updatedDto.getFullTitle(), responseDto.getFullTitle());
+        assertEquals(updatedDto.getDescription(), responseDto.getDescription());
+        assertEquals(updatedDto.getIsbn(), responseDto.getIsbn());
+        assertEquals(updatedDto.getBarcode(), responseDto.getBarcode());
+        assertEquals(updatedDto.getAuthors(), getAuthorNames(responseDto.getAuthors()));
+        assertEquals(updatedDto.getKeywords(), getKeywordNames(responseDto.getKeywords()));
+        assertEquals(updatedDto.getLanguages(), getLanguageNames(responseDto.getLanguages()));
+        assertEquals(updatedDto.getPublisher(), responseDto.getPublisher());
+        assertEquals(updatedDto.getCover(), responseDto.getCover());
+        assertEquals(updatedDto.getPublishYear(), responseDto.getPublishYear());
+        assertEquals(updatedDto.getPages(), responseDto.getPages());
+    }
+
+    @Test
+    void update_shouldThrowException_whenNameAlreadyExists() throws Exception {
+        BookDto requestDto = landscapesOfIdentity();
+        Book book = service.create(requestDto);
+        BookDto existingDto = conflictsAndAdaptations();
+        service.create(existingDto);
+
+        String responseString = mockMvc.perform(
+                        put(STR."\{BOOKS}/{id}", book.getId())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(existingDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        ErrorDto errorDto = objectMapper.readValue(responseString, ErrorDto.class);
+
+        assertEquals(BAD_REQUEST_ERROR_TYPE, errorDto.getTitle());
+        assertEquals(String.format(ENTITY_ALREADY_HAS_A, BOOK, existingDto.getName()), errorDto.getDetail());
+    }
+
+    @Test
+    void delete_isSuccessful() throws Exception {
+        BookDto requestDto = landscapesOfIdentity();
+        Book book = service.create(requestDto);
+
+        mockMvc.perform(
+                        delete(STR."\{BOOKS}/{id}", book.getId())
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        assertThrows(EntityNotFoundException.class, () -> service.read(book.getId()));
+    }
+
+    @Test
+    void delete_shouldThrowException_whenIdDoesNotExist() throws Exception {
+        mockMvc.perform(
+                        delete(STR."\{BOOKS}/{id}", ID_NOT_FOUND)
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     private static Set<String> getAuthorNames(Set<AuthorResponseDto> authors) {

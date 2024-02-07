@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface KeywordRepository extends JpaRepository<Keyword, Long> {
     boolean existsByNameIgnoreCase(@NotBlank String name);
 
-    boolean existsByNameIgnoreCaseAndIdIsNot(@NotBlank String name, @NotNull long id);
+    boolean existsByNameIgnoreCaseAndIdIsNot(@NotBlank String name, @NotNull Long id);
 
     Optional<Keyword> findByNameIgnoreCase(@NotBlank String name);
 }

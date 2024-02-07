@@ -24,6 +24,7 @@ import static ro.george.postelnicu.geolibrary.exception.EntityValidationExceptio
 import static ro.george.postelnicu.geolibrary.model.CoverType.SOFTCOVER_WITH_DUST_JACKET;
 import static ro.george.postelnicu.geolibrary.model.EntityName.BOOK;
 import static ro.george.postelnicu.geolibrary.model.StatusType.HAVE;
+import static ro.george.postelnicu.geolibrary.service.BookService.NAME_IS_NOT_INCLUDED_IN_FULL_TITLE;
 
 
 class BookServiceTest extends AbstractIntegrationTest {
@@ -130,11 +131,64 @@ class BookServiceTest extends AbstractIntegrationTest {
         BookDto dto = landscapesOfIdentity();
         Book book = service.create(dto);
 
-        BookDto updatedDto = landscapesOfIdentity();
-        updatedDto.setName("Updated Book Name");
-        updatedDto.setFullTitle("Updated Book Name Fully");
+        BookDto updatedDto = conflictsAndAdaptations();
+
         Book updatedBook = service.update(book.getId(), updatedDto);
         assertEquals(updatedDto.getName(), updatedBook.getName());
+    }
+
+    @Test
+    void update_throwsException_whenFullTitleDoesNotContainName() {
+        BookDto dto = landscapesOfIdentity();
+        Book book = service.create(dto);
+
+        BookDto updatedDto = landscapesOfIdentity();
+        updatedDto.setName("Updated Book Name");
+
+        EntityValidationException ex = assertThrows(EntityValidationException.class, () -> service.update(book.getId(), updatedDto));
+
+        assertEquals(String.format(ENTITY_VALIDATION_FAILURE, BOOK, NAME_IS_NOT_INCLUDED_IN_FULL_TITLE), ex.getMessage());
+    }
+
+    @Test
+    void update_throwsException_whenNameAlreadyExists() {
+        BookDto dto = landscapesOfIdentity();
+        BookDto secondDto = conflictsAndAdaptations();
+        Book book = service.create(dto);
+        service.create(secondDto);
+
+        dto.setName(secondDto.getName());
+        dto.setFullTitle(secondDto.getFullTitle());
+
+        EntityAlreadyExistException ex = assertThrows(EntityAlreadyExistException.class, () -> service.update(book.getId(), dto));
+
+        assertEquals(String.format(ENTITY_ALREADY_HAS_A, BOOK, secondDto.getName()), ex.getMessage());
+    }
+
+    @Test
+    void update_throwsException_whenIsbnExists() {
+        BookDto dto = landscapesOfIdentity();
+        BookDto secondDto = conflictsAndAdaptations();
+        Book book = service.create(dto);
+        service.create(secondDto);
+
+        dto.setIsbn(secondDto.getIsbn());
+        EntityAlreadyExistException ex = assertThrows(EntityAlreadyExistException.class, () -> service.update(book.getId(), dto));
+
+        assertEquals(String.format(ENTITY_ALREADY_HAS_COLLECTION, BOOK, Set.of(dto.getName(), dto.getIsbn())), ex.getMessage());
+    }
+
+    @Test
+    void update_throwsException_whenBarcodeExists() {
+        BookDto dto = landscapesOfIdentity();
+        BookDto secondDto = conflictsAndAdaptations();
+        Book book = service.create(dto);
+        service.create(secondDto);
+        dto.setBarcode(secondDto.getBarcode());
+
+        EntityAlreadyExistException ex = assertThrows(EntityAlreadyExistException.class, () -> service.update(book.getId(), dto));
+
+        assertEquals(String.format(ENTITY_ALREADY_HAS_COLLECTION, BOOK, Set.of(dto.getName(), dto.getBarcode())), ex.getMessage());
     }
 
     private static Set<String> getAuthorNames(Set<Author> authors) {

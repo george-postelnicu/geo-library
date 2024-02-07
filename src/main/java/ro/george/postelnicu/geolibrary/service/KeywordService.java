@@ -63,8 +63,7 @@ public class KeywordService {
 
     @Transactional
     public Keyword update(Long id, KeywordDto keywordDto) {
-        Keyword keyword = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(KEYWORD, id));
+        Keyword keyword = read(id);
 
         if (repository.existsByNameIgnoreCaseAndIdIsNot(keywordDto.getName(), id)) {
             throw new EntityAlreadyExistException(KEYWORD, splitCapitalizeAndJoin(keywordDto.getName()));
@@ -77,8 +76,7 @@ public class KeywordService {
 
     @Transactional
     public void delete(Long id) {
-        Keyword keyword = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(KEYWORD, id));
+        Keyword keyword = read(id);
 
         if (keyword.getBooks().isEmpty()) {
             repository.delete(keyword);

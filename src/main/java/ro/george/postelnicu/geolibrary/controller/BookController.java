@@ -11,7 +11,6 @@ import ro.george.postelnicu.geolibrary.mapper.BookMapper;
 import ro.george.postelnicu.geolibrary.model.Book;
 import ro.george.postelnicu.geolibrary.model.BookSearchCriteria;
 import ro.george.postelnicu.geolibrary.model.CoverType;
-import ro.george.postelnicu.geolibrary.repository.BookRepository;
 import ro.george.postelnicu.geolibrary.service.BookSearchService;
 import ro.george.postelnicu.geolibrary.service.BookService;
 
@@ -28,12 +27,10 @@ import static ro.george.postelnicu.geolibrary.controller.ApiPrefix.BOOKS;
 public class BookController {
     private final BookService service;
     private final BookSearchService searchService;
-    private final BookRepository repository;
 
-    public BookController(BookService service, BookSearchService searchService, BookRepository repository) {
+    public BookController(BookService service, BookSearchService searchService) {
         this.service = service;
         this.searchService = searchService;
-        this.repository = repository;
     }
 
     @GetMapping()
@@ -85,22 +82,15 @@ public class BookController {
     }
 
     @PutMapping("/{id}")
-    Book update(@RequestBody Book newBook, @PathVariable Long id) {
+    ResponseEntity<BookResponseDto> update(@RequestBody BookDto newBook, @PathVariable Long id) {
+        Book updated = service.update(id, newBook);
 
-        return repository.findById(id)
-                .map(book -> {
-                    book.setName(newBook.getName());
-                    book.setIsbn(newBook.getIsbn());
-                    return repository.save(book);
-                })
-                .orElseGet(() -> {
-                    newBook.setId(id);
-                    return repository.save(newBook);
-                });
+        BookResponseDto responseDto = BookMapper.INSTANCE.toBookResponseDto(updated);
+        return ResponseEntity.ok().body(responseDto);
     }
 
     @DeleteMapping("/{id}")
     void delete(@PathVariable Long id) {
-        repository.deleteById(id);
+        service.delete(id);
     }
 }

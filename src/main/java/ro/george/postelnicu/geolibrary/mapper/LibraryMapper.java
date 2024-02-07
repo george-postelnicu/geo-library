@@ -5,21 +5,16 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
-import ro.george.postelnicu.geolibrary.dto.book.BookDto;
 import ro.george.postelnicu.geolibrary.dto.author.AuthorDto;
 import ro.george.postelnicu.geolibrary.dto.author.AuthorResponseDto;
-import ro.george.postelnicu.geolibrary.dto.book.BookResponseDto;
 import ro.george.postelnicu.geolibrary.dto.keyword.KeywordDto;
 import ro.george.postelnicu.geolibrary.dto.keyword.KeywordResponseDto;
 import ro.george.postelnicu.geolibrary.dto.language.LanguageDto;
 import ro.george.postelnicu.geolibrary.dto.language.LanguageResponseDto;
 import ro.george.postelnicu.geolibrary.model.Author;
-import ro.george.postelnicu.geolibrary.model.Book;
 import ro.george.postelnicu.geolibrary.model.Keyword;
 import ro.george.postelnicu.geolibrary.model.Language;
 import ro.george.postelnicu.geolibrary.util.StringUtil;
-
-import java.util.Set;
 
 @Mapper
 public interface LibraryMapper {
@@ -61,10 +56,5 @@ public interface LibraryMapper {
     void updateLanguageFromDto(LanguageDto dto, @MappingTarget Language entity);
 
     LanguageResponseDto toLanguageResponseDto(Language entity);
-
-    @Mapping(target = "authors", ignore = true)
-    @Mapping(target = "keywords", ignore = true)
-    @Mapping(target = "languages", ignore = true)
-    Book toBook(BookDto dto);
 
 }

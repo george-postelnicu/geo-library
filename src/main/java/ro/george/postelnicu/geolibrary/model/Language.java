@@ -21,14 +21,6 @@ public class Language {
     @ManyToMany(mappedBy = "languages")
     private Set<Book> books = new HashSet<>();
 
-    public Language() {
-
-    }
-
-    public Language(String name) {
-        this.name = name;
-    }
-
     public Long getId() {
         return id;
     }

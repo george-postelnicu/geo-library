@@ -56,14 +56,6 @@ public class Book {
     @Enumerated(EnumType.STRING)
     private StatusType status;
 
-    public Book() {
-    }
-
-    public Book(String name, String isbn) {
-        this.name = name;
-        this.isbn = isbn;
-    }
-
     public void addAuthor(Author author) {
         authors.add(author);
         author.getBooks().add(this);

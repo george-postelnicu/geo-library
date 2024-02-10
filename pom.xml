@@ -5,14 +5,14 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.5</version>
+        <version>3.2.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>ro.george.postelnicu</groupId>
-    <artifactId>geo-library</artifactId>
+    <groupId>ro.george-postelnicu</groupId>
+    <artifactId>bookcase-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>geo-library</name>
-    <description>George&apos;s Book Library Backend</description>
+    <name>bookcase-backend</name>
+    <description>George&apos;s Bookcase Backend</description>
     <properties>
         <java.version>21</java.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
@@ -81,8 +81,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>21</source> <!-- depending on your project -->
-                    <target>21</target> <!-- depending on your project -->
+                    <source>${java.version}</source> <!-- depending on your project -->
+                    <target>${java.version}</target> <!-- depending on your project -->
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.mapstruct</groupId>

@@ -132,6 +132,8 @@ class BookServiceTest extends AbstractIntegrationTest {
         Book book = service.create(dto);
 
         BookDto updatedDto = conflictsAndAdaptations();
+        updatedDto.setKeywords(Set.of(FINANCE, ENGLISH));
+        updatedDto.setLanguages(Set.of(FRENCH, ART));
 
         Book updatedBook = service.update(book.getId(), updatedDto);
         assertEquals(updatedDto.getName(), updatedBook.getName());

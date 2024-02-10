@@ -88,10 +88,6 @@ public class GlobalControllerAdvice extends ResponseEntityExceptionHandler {
             WebRequest request) {
         HttpHeaders writeableHeaders = HttpHeaders.writableHttpHeaders(headers);
         writeableHeaders.setContentType(MediaType.APPLICATION_PROBLEM_JSON);
-        if (body == null) {
-            body = new ErrorDto(null, HttpStatus.valueOf(status.value()).getReasonPhrase(), ex.getMessage(),
-                    null, HttpStatus.resolve(status.value()));
-        }
         return super.handleExceptionInternal(ex, body, writeableHeaders, status, request);
     }
 

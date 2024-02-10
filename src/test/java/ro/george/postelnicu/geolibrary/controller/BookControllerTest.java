@@ -1,9 +1,11 @@
 package ro.george.postelnicu.geolibrary.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -19,6 +21,7 @@ import ro.george.postelnicu.geolibrary.exception.EntityNotFoundException;
 import ro.george.postelnicu.geolibrary.model.Book;
 import ro.george.postelnicu.geolibrary.service.BookService;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -230,6 +233,34 @@ class BookControllerTest extends AbstractIntegrationTest {
                         delete(STR."\{BOOKS}/{id}", ID_NOT_FOUND)
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @Transactional
+    void search_shouldReturn200_andListOfBooks() throws Exception {
+        BookDto book1 = landscapesOfIdentity();
+        BookDto book2 = conflictsAndAdaptations();
+        service.create(book1);
+        service.create(book2);
+
+        String responseString = mockMvc.perform(
+                        get(BOOKS)
+                                .queryParam("min_year", "2021")
+                                .queryParam("languages", ENGLISH)
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Page<BookResponseDto> responseDtoList = objectMapper.readValue(responseString, new TypeReference<>() {});
+        List<BookResponseDto> responseBooks = responseDtoList.getContent();
+
+        assertNotNull(responseBooks);
+        assertEquals(2, responseBooks.size());
+        assertEquals(book1.getName(), responseBooks.get(0).getName());
+        assertEquals(book2.getName(), responseBooks.get(1).getName());
     }
 
     private static Set<String> getAuthorNames(Set<AuthorResponseDto> authors) {

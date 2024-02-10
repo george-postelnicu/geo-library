@@ -21,13 +21,6 @@ public class Keyword {
     @ManyToMany(mappedBy = "keywords")
     private Set<Book> books = new HashSet<>();
 
-    public Keyword() {
-    }
-
-    public Keyword(String name) {
-        this.name = name;
-    }
-
     public Long getId() {
         return id;
     }

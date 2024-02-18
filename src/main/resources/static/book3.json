@@ -1,0 +1,27 @@
+{
+  "name": "100 Steps Through 20th Century Estonian Architecture",
+  "isbn": "ISBN 978-9949-9078-6-1",
+  "status": "HAVE",
+  "languages": ["Estonian", "English"],
+  "authors": [
+    "Lilian Hansar",
+    "Jaak Huimerind",
+    "Karen Jagodin",
+    "Liina Jänes",
+    "Mart Kalm",
+    "Epp Lankots",
+    "Maris Mändel",
+    "Triin Ojari",
+    "Oliver Orro"
+  ],
+  "keywords": [
+    "20th Century Architecture",
+    "Architecture",
+    "Estonian Architecture"
+  ],
+  "cover": "SOFTCOVER_WITH_DUST_JACKET",
+  "publisher": "Estonian Museum of Architecture",
+  "publishYear": 2013,
+  "pages": 215,
+  "barcode": "9789949907861"
+}

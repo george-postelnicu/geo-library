@@ -1,0 +1,15 @@
+{
+  "name": "Landscapes of Identity",
+  "isbn": "ISBN 978-9949-687-32-9",
+  "status": "HAVE",
+  "fullTitle": "Landscapes of Identity: Estonian Art 1700-1945 The 3rd-floor permanent exhibition of the Kumu Art Museum",
+  "description": "Lorem Ipsum",
+  "authors": ["Linda Kalijundi", "Kadi Polli", "Bart Pushaw", "Kaja Kahrik"],
+  "keywords": ["Kumu Art Museum", "Art", "Estonian Art"],
+  "languages": ["English"],
+  "publisher": "Art Museum of Estonia",
+  "cover": "SOFTCOVER_WITH_DUST_JACKET",
+  "publishYear": 2021,
+  "pages": 111,
+  "barcode": "9789949687329"
+}

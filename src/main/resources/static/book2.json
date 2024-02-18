@@ -1,0 +1,15 @@
+{
+  "name": "Conflicts and adaptations",
+  "isbn": "ISBN 978-9949-687-44-2",
+  "status": "HAVE",
+  "fullTitle": "Conflicts and Adaptations. Estonian Art of the Soviet Era (1940-1991)",
+  "description": "Lorem Ipsum",
+  "authors": ["Anu Allas", "Sirje Helme", "Liisa Kaljula", "Kaja Kahrik"],
+  "keywords": ["Kumu Art Museum", "Art", "Estonian Art"],
+  "languages": ["English"],
+  "cover": "SOFTCOVER_WITH_DUST_JACKET",
+  "publisher": "Art Museum of Estonia",
+  "publishYear": 2023,
+  "pages": 111,
+  "barcode": "9789949687442"
+}

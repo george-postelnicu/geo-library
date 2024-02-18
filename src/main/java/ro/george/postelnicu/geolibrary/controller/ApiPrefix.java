@@ -2,8 +2,8 @@ package ro.george.postelnicu.geolibrary.controller;
 
 public interface ApiPrefix {
     String BULK = "/bulk";
-    String AUTHORS = "/authors";
-    String BOOKS = "/books";
-    String KEYWORDS = "/keywords";
-    String LANGUAGES = "/languages";
+    String AUTHORS = "/api/authors";
+    String BOOKS = "/api/books";
+    String KEYWORDS = "/api/keywords";
+    String LANGUAGES = "/api/languages";
 }

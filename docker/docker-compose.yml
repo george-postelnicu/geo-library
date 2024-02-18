@@ -21,7 +21,7 @@ services:
       PMA_HOST: db
       MYSQL_ROOT_PASSWORD: ThisIsClassified
     ports:
-      - '8080:80'
+      - '9090:80'
     networks:
       - app-network
 networks:
